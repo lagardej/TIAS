@@ -1,35 +1,26 @@
-Add interactive install command with path auto-detection
+Add safety checks and validation command
 
-BREAKING CHANGE: Simplified setup process
+Safety features:
+- Python 3.11+ version check at startup
+- .gitignore verification in install command
+- Auto-add .env to .gitignore if missing
+- validate command tests all configuration paths
 
 Features:
-- ADD terractl.py install command
-  - Auto-detects game installation (Steam paths)
-  - Auto-detects saves directory (OS-aware)
-  - Prompts for KoboldCpp/model paths
-  - OS-aware GPU backend defaults (clblast/vulkan)
-  - Generates .env with timestamp
-
-- ADD OS-specific .env templates
-  - .env.linux.dist (ROCm/clblast, Linux paths, Proton notes)
-  - .env.win.dist (Vulkan, Windows paths, simplified)
-  - DELETE .env.dist (replaced)
-
-- Fix directory inconsistency
-  - MOVE mistral_context.txt: data/ → generated/
-  - DELETE data/ directory
-  - Consistent naming: build/ = artifacts, generated/ = runtime
-
-- Update all documentation
-  - README.md: install command, OS-specific setup
-  - workflow.md: generated/ paths
-  - All references updated
+- ADD cmd_validate() - comprehensive path validation
+  - Checks game installation + templates directory
+  - Checks saves directory + counts savegames
+  - Checks KoboldCpp executable + model file
+  - Verifies .gitignore protection for .env
+  - Clear pass/fail/warning reporting
 
 Changes:
-- terractl.py: +150 lines (install + helpers)
-- .env.linux.dist: complete Linux config
-- .env.win.dist: complete Windows config
-- README.md: simplified quick start
-- All docs: generated/ instead of data/
+- terractl.py: +130 lines (version check + validate + gitignore)
+- Python 3.11+ enforced (tomllib requirement)
+- install command now ensures .gitignore safety
+- validate command catches config errors before build
+- README.md: document validate command
 
-Setup now: python terractl.py install (one command)
+Usage:
+  python terractl.py install   # Auto-adds .env to .gitignore
+  python terractl.py validate  # Test config before build

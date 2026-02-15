@@ -80,6 +80,9 @@ python terractl.py clean
 # Build templates database from game files
 python terractl.py build
 
+# Validate configuration and paths before building
+python terractl.py validate
+
 # Parse savegame to database
 python terractl.py parse --date YYYY-M-D
 

@@ -18,6 +18,13 @@ import sqlite3
 from pathlib import Path
 from datetime import datetime
 
+# Python version check
+if sys.version_info < (3, 11):
+    print("ERROR: Python 3.11+ required")
+    print(f"Current version: {sys.version}")
+    print("Please upgrade Python and try again.")
+    sys.exit(1)
+
 # ============================================================================
 # LOGGING SETUP
 # ============================================================================
@@ -159,6 +166,22 @@ def cmd_install(args):
     
     project_root = Path(__file__).parent
     env_file = project_root / ".env"
+    gitignore_file = project_root / ".gitignore"
+    
+    # Ensure .env is in .gitignore
+    if gitignore_file.exists():
+        with open(gitignore_file) as f:
+            gitignore_content = f.read()
+        if '.env' not in gitignore_content and '*.env' not in gitignore_content:
+            print("\nWARNING: .env not found in .gitignore")
+            print("Adding .env to .gitignore to prevent committing secrets...")
+            with open(gitignore_file, 'a') as f:
+                f.write("\n# Environment configuration (contains secrets)\n.env\n")
+    else:
+        print("\nWARNING: .gitignore not found")
+        print("Creating .gitignore to protect .env file...")
+        with open(gitignore_file, 'w') as f:
+            f.write("# Environment configuration (contains secrets)\n.env\n")
     
     with open(env_file, 'w') as f:
         f.write("# Terra Invicta Advisory System - Configuration\n")
@@ -682,6 +705,124 @@ def cmd_inject(args):
     print(f"\n[OK] Context ready: {output_file} ({size:.1f}KB)")
 
 # ============================================================================
+# VALIDATE COMMAND
+# ============================================================================
+
+def cmd_validate(args):
+    """Validate configuration and paths"""
+    print("Terra Invicta Advisory System - Configuration Validation")
+    print("="*60)
+    
+    project_root = Path(__file__).parent
+    errors = []
+    warnings = []
+    
+    # Check .env exists
+    env_file = project_root / ".env"
+    if not env_file.exists():
+        errors.append(".env file not found. Run: terractl.py install")
+        print("\n[FAIL] .env file missing")
+        print("  Run: python terractl.py install")
+        return 1
+    
+    print("[OK] .env file found")
+    
+    # Load and validate .env
+    try:
+        env = load_env()
+    except SystemExit:
+        return 1
+    
+    # Validate game installation
+    print("\nValidating game installation...")
+    game_dir = Path(os.path.expanduser(env.get('GAME_INSTALL_DIR', '')))
+    if not game_dir.exists():
+        errors.append(f"Game directory not found: {game_dir}")
+        print(f"  [FAIL] Not found: {game_dir}")
+    else:
+        templates_dir = game_dir / "TerraInvicta_Data/StreamingAssets/Templates"
+        if not templates_dir.exists():
+            errors.append(f"Templates directory not found: {templates_dir}")
+            print(f"  [FAIL] Templates not found")
+        else:
+            print(f"  [OK] Game found: {game_dir}")
+    
+    # Validate saves directory
+    print("\nValidating saves directory...")
+    saves_dir = Path(os.path.expanduser(env.get('GAME_SAVES_DIR', '')))
+    if not saves_dir.exists():
+        errors.append(f"Saves directory not found: {saves_dir}")
+        print(f"  [FAIL] Not found: {saves_dir}")
+    else:
+        savegames = list(saves_dir.glob('*.gz'))
+        if not savegames:
+            warnings.append(f"No savegames found in {saves_dir}")
+            print(f"  [WARN] No savegames found")
+        else:
+            print(f"  [OK] Saves found: {len(savegames)} savegames")
+    
+    # Validate KoboldCpp
+    print("\nValidating KoboldCpp...")
+    kobold_dir = Path(os.path.expanduser(env.get('KOBOLDCPP_DIR', '')))
+    if not kobold_dir.exists():
+        errors.append(f"KoboldCpp directory not found: {kobold_dir}")
+        print(f"  [FAIL] Not found: {kobold_dir}")
+    else:
+        kobold_exe = kobold_dir / "koboldcpp.exe"
+        if not kobold_exe.exists():
+            kobold_exe = kobold_dir / "koboldcpp"
+        if not kobold_exe.exists():
+            errors.append(f"KoboldCpp executable not found in {kobold_dir}")
+            print(f"  [FAIL] Executable not found")
+        else:
+            print(f"  [OK] KoboldCpp found: {kobold_exe}")
+    
+    # Validate model
+    print("\nValidating model...")
+    model_path = Path(os.path.expanduser(env.get('KOBOLDCPP_MODEL', '')))
+    if not model_path.exists():
+        errors.append(f"Model file not found: {model_path}")
+        print(f"  [FAIL] Not found: {model_path}")
+    else:
+        model_size = model_path.stat().st_size / 1024 / 1024 / 1024
+        print(f"  [OK] Model found: {model_path} ({model_size:.1f}GB)")
+    
+    # Check .gitignore
+    print("\nValidating .gitignore...")
+    gitignore_file = project_root / ".gitignore"
+    if not gitignore_file.exists():
+        warnings.append(".gitignore not found - .env might be committed")
+        print(f"  [WARN] .gitignore not found")
+    else:
+        with open(gitignore_file) as f:
+            gitignore_content = f.read()
+        if '.env' not in gitignore_content and '*.env' not in gitignore_content:
+            warnings.append(".env not in .gitignore - secrets might be committed")
+            print(f"  [WARN] .env not in .gitignore")
+        else:
+            print(f"  [OK] .env properly ignored")
+    
+    # Summary
+    print("\n" + "="*60)
+    if errors:
+        print(f"[FAIL] Validation failed with {len(errors)} error(s)")
+        for error in errors:
+            print(f"  - {error}")
+        return 1
+    elif warnings:
+        print(f"[OK] Validation passed with {len(warnings)} warning(s)")
+        for warning in warnings:
+            print(f"  - {warning}")
+        return 0
+    else:
+        print("[OK] All checks passed!")
+        print("\nReady to use:")
+        print("  python terractl.py build")
+        print("  python terractl.py parse --date YYYY-M-D")
+        print("  python terractl.py run --date YYYY-M-D")
+        return 0
+
+# ============================================================================
 # RUN COMMAND
 # ============================================================================
 
@@ -752,6 +893,7 @@ def main():
     subparsers.add_parser('install', help='Interactive setup (auto-detect paths)')
     subparsers.add_parser('clean', help='Remove build directory')
     subparsers.add_parser('build', help='Build templates database')
+    subparsers.add_parser('validate', help='Validate configuration and paths')
     
     parse_parser = subparsers.add_parser('parse', help='Parse savegame')
     parse_parser.add_argument('--date', required=True, help='Date (YYYY-M-D)')
@@ -774,6 +916,7 @@ def main():
         'install': cmd_install,
         'clean': cmd_clean,
         'build': cmd_build,
+        'validate': cmd_validate,
         'parse': cmd_parse,
         'inject': cmd_inject,
         'run': cmd_run
