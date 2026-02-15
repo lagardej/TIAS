@@ -1,0 +1,35 @@
+Add interactive install command with path auto-detection
+
+BREAKING CHANGE: Simplified setup process
+
+Features:
+- ADD terractl.py install command
+  - Auto-detects game installation (Steam paths)
+  - Auto-detects saves directory (OS-aware)
+  - Prompts for KoboldCpp/model paths
+  - OS-aware GPU backend defaults (clblast/vulkan)
+  - Generates .env with timestamp
+
+- ADD OS-specific .env templates
+  - .env.linux.dist (ROCm/clblast, Linux paths, Proton notes)
+  - .env.win.dist (Vulkan, Windows paths, simplified)
+  - DELETE .env.dist (replaced)
+
+- Fix directory inconsistency
+  - MOVE mistral_context.txt: data/ → generated/
+  - DELETE data/ directory
+  - Consistent naming: build/ = artifacts, generated/ = runtime
+
+- Update all documentation
+  - README.md: install command, OS-specific setup
+  - workflow.md: generated/ paths
+  - All references updated
+
+Changes:
+- terractl.py: +150 lines (install + helpers)
+- .env.linux.dist: complete Linux config
+- .env.win.dist: complete Windows config
+- README.md: simplified quick start
+- All docs: generated/ instead of data/
+
+Setup now: python terractl.py install (one command)

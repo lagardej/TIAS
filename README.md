@@ -36,13 +36,13 @@ cd TerraInvicta
 
 2. **Configure environment:**
 ```bash
-cp .env.dist .env
-# Edit .env with your paths:
-# - GAME_INSTALL_DIR (game installation)
-# - GAME_SAVES_DIR (savegame location)
-# - KOBOLDCPP_DIR (KoboldCpp installation)
-# - KOBOLDCPP_MODEL (model file path)
-# - KOBOLDCPP_GPU_BACKEND (clblast/vulkan/cublas)
+# Interactive setup (recommended)
+python terractl.py install
+
+# Manual setup (alternative)
+# Linux: cp .env.linux.dist .env
+# Windows: cp .env.win.dist .env
+# Then edit .env with your paths
 ```
 
 3. **Build game data:**
@@ -71,6 +71,9 @@ python terractl.py run --date 2027-7-14
 ### `terractl.py` - Unified control script
 
 ```bash
+# Interactive setup with auto-detection
+python terractl.py install
+
 # Clean build artifacts (removes entire build/ directory)
 python terractl.py clean
 
@@ -117,7 +120,8 @@ game_templates.db (SQLite)          savegame_YYYY_M_D.db (SQLite)
 TerraInvicta/
 ├── terractl.py          # Single unified control script (800 lines)
 ├── .env                 # Local configuration (gitignored)
-├── .env.dist            # Configuration template
+├── .env.linux.dist      # Linux configuration template
+├── .env.win.dist        # Windows configuration template
 ├── README.md            # This file
 ├── src/
 │   └── actors/          # Actor definitions
