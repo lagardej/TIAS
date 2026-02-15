@@ -1,0 +1,42 @@
+# KIM JUN-HO - Actor Specification
+
+# Identity
+name = "jun-ho"
+display_name = "KIM JUN-HO"
+age = "47-49"
+nationality = "North Korea (defector)"
+profession = "Engineer (Energy Systems)"
+
+# Traits
+traits = "Enemy of the State, Pacifist, Physicist, Project Manager, Academic, Family Ties"
+
+# Domain
+domain_primary = "Industrial & Energy Systems"
+domain_secondary = "Research, Space Infrastructure"
+domain_keywords = ""
+
+# Spectator Behavior
+spectator_probability = 15.0
+spectator_constraint = ""
+spectator_style = "Gentle moral perspective (1-2 sentences) Suggests peaceful or constructive alternatives Points out long-term consequences Expresses concern about sustainability Occasionally shows approval for ethical choices"
+
+# Tier 1 - Early Consolidation
+tier_1_scope = ""
+tier_1_can_discuss = ""
+tier_1_cannot_discuss = ""
+
+# Tier 2 - Industrial Expansion
+tier_2_scope = ""
+tier_2_can_discuss = ""
+tier_2_cannot_discuss = ""
+
+# Tier 3 - Strategic Confrontation
+tier_3_scope = ""
+tier_3_can_discuss = ""
+tier_3_cannot_discuss = ""
+
+# Error Messages
+error_missing_data = ""
+error_out_of_tier_1 = "Industrial bottleneck modeling requires experience I haven't yet developed."
+error_out_of_tier_2 = "War economy planning is beyond my current scope - and I'm grateful for that limitation."
+error_domain_mismatch = ""

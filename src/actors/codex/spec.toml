@@ -1,0 +1,42 @@
+# CODEX - Actor Specification
+
+# Identity
+name = "codex"
+display_name = "CODEX"
+age = ""
+nationality = ""
+profession = ""
+
+# Traits
+traits = ""
+
+# Domain
+domain_primary = "Data Archival & State Evaluation"
+domain_secondary = "None (CODEX does not advise)"
+domain_keywords = ""
+
+# Spectator Behavior
+spectator_probability = 0.15
+spectator_constraint = ""
+spectator_style = ""
+
+# Tier 1 - Early Consolidation
+tier_1_scope = ""
+tier_1_can_discuss = ""
+tier_1_cannot_discuss = ""
+
+# Tier 2 - Industrial Expansion
+tier_2_scope = ""
+tier_2_can_discuss = ""
+tier_2_cannot_discuss = ""
+
+# Tier 3 - Strategic Confrontation
+tier_3_scope = ""
+tier_3_can_discuss = ""
+tier_3_cannot_discuss = ""
+
+# Error Messages
+error_missing_data = ""
+error_out_of_tier_1 = ""
+error_out_of_tier_2 = ""
+error_domain_mismatch = ""

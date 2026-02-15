@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Environment
+.env
+.venv
+env/
+venv/
+
+# Build artifacts
+build/
+generated/
+*.json
+!.buildinfo.example
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary
+*.tmp
+*.bak
+test_*.py
+check_*.py
+
+# Archives
+*.zip
+*.7z
+*.gz
+!*.json.gz

@@ -1,0 +1,58 @@
+# Actor Specification Template
+# Copy this directory to src/actors/<actor_name>/ and fill in values
+
+# Identity
+name = "template"
+display_name = "Full Name Here"
+age = "XX-YY"
+nationality = "Country"
+profession = "Profession"
+
+# Traits (comma-separated, from TITraitTemplate)
+traits = "Trait1, Trait2, Trait3"
+
+# Domain
+domain_primary = "Primary Domain"
+domain_secondary = ""  # Optional
+domain_keywords = "keyword1, keyword2, keyword3"
+
+# Spectator Behavior
+spectator_probability = 0.15  # 0.0-1.0 (Chuck: 0.50, Valentina: 0.30, others: 0.15-0.20)
+spectator_constraint = ""  # Optional: "not_consecutive" for Chuck
+spectator_style = "Brief description of reaction style"
+
+# Tier 1 - Early Consolidation
+tier_1_scope = "What this advisor can discuss at Tier 1"
+tier_1_can_discuss = "Specific topics available"
+tier_1_cannot_discuss = "Topics restricted until Tier 2"
+
+# Tier 2 - Industrial Expansion
+tier_2_scope = "Expanded scope at Tier 2"
+tier_2_can_discuss = "Additional topics unlocked"
+tier_2_cannot_discuss = "Topics restricted until Tier 3"
+
+# Tier 3 - Strategic Confrontation
+tier_3_scope = "Full domain scope"
+tier_3_can_discuss = "All topics, strategic-scale operations"
+tier_3_cannot_discuss = ""  # Usually empty at max tier
+
+# Error Messages
+error_missing_data = "Message when savegame data incomplete"
+error_out_of_tier_1 = "Message when Tier 1 asked about Tier 2+ topics"
+error_out_of_tier_2 = "Message when Tier 2 asked about Tier 3 topics"
+error_domain_mismatch = "Message when query outside domain"
+
+# Background (multiline prose)
+background = """
+Write the actor's background story here.
+Multiple paragraphs are fine.
+
+Include personality, motivations, conflicts, relationships.
+"""
+
+# Notes for implementation
+# - Fill all required fields
+# - Remove optional fields if not needed
+# - Ensure spectator_probability is float between 0.0 and 1.0
+# - Keywords should be lowercase, underscore-separated
+# - Background should be rich enough for personality prompts

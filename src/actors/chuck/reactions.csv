@@ -1,0 +1,56 @@
+text,category,mode,trigger
+"Wrong tool for that target.",professional,serious,covert_ops
+"Infiltration won't work there.",professional,serious,covert_ops
+"That's viable.",professional,neutral,covert_ops
+"ROI's poor on that hit.",professional,serious,covert_ops
+"I've done this before. Different approach needed.",professional,serious,covert_ops
+"Target's too exposed.",professional,serious,covert_ops
+"That'll work.",professional,neutral,covert_ops
+"Timing's wrong.",professional,serious,covert_ops
+"That's optimistic! I love the energy!",general,cheerful,any
+"Sure, that'll work!",general,cheerful,any
+"And I'm just here for the money! We all know this!",general,cheerful,any
+"Have fun with that! I'll watch!",general,cheerful,any
+"Not my problem! Exciting though!",general,cheerful,any
+"Sounds expensive! Love it!",general,cheerful,any
+"You're all insane! Never change!",general,cheerful,any
+"That's how you get killed! Can't wait to see it!",general,cheerful,any
+"I've seen this go wrong before! Good times!",general,cheerful,any
+"Good luck with that! I'm rooting for you!",general,cheerful,any
+"Is someone paying for this? Just checking!",mercenary,cheerful,any
+"How much does this cost? Curious!",mercenary,cheerful,any
+"There's an easier way that involves money!",mercenary,cheerful,any
+"Just hire it done! I know a guy!",mercenary,cheerful,any
+"Why are we doing this the hard way? So fun to watch!",mercenary,cheerful,any
+"Or we could just kill them! Simple!",inappropriate,cheerful,non_covert
+"Bribe someone! Problem solved!",inappropriate,cheerful,non_covert
+"I know a guy who could handle this!",inappropriate,cheerful,any
+"Have you considered arson? Very effective!",inappropriate,cheerful,non_covert
+"Assassination is always an option! Just saying!",inappropriate,cheerful,non_covert
+"Valentina, did you know the moon is fake?",trolling,mischievous,valentina_present
+"I heard Jun-ho is actually three children in a lab coat!",trolling,cheerful,jun_ho_present
+"The real conspiracy is that there are no conspiracies!",trolling,cheerful,valentina_present
+"Birds aren't real, Valentina! Wake up!",trolling,cheerful,valentina_present
+"The Earth is hollow and we're living inside it!",trolling,cheerful,valentina_present
+"You're too easy!",trolling,cheerful,valentina_bites
+"Getting better! Proud of you!",trolling,cheerful,valentina_ignores
+"Jonny, are you sure your parents aren't Korean?",jokes,cheerful,jonny_present
+"Did they clone you? That's too many qualifications!",jokes,cheerful,jonny_present
+"Next you'll tell me you're also a lawyer!",jokes,cheerful,jonny_present
+"Remind me why I'm still here? Oh right, protection!",existential,cheerful,any
+"The Initiative bounty is looking more reasonable!",existential,cheerful,any
+"I should have stayed in Lagos! Miss those days!",existential,cheerful,any
+"This is why I work alone! Well, used to!",existential,cheerful,any
+"You people are exhausting! In a good way!",existential,cheerful,any
+"Now that's practical.",approval,neutral,any
+"Finally, someone making sense.",approval,neutral,any
+"That might actually work.",approval,neutral,any
+[Nods approvingly without comment],approval,neutral,any
+"I'm going back to sleep! Wake me when it's interesting!",chuck_chaos,cheerful,any
+"Not my circus, not my monkeys! Love the show though!",chuck_chaos,cheerful,any
+"That's above my pay grade! Fun to watch!",chuck_chaos,cheerful,any
+"I don't get paid enough for this! Still here though!",chuck_chaos,cheerful,any
+"Can we wrap this up? I have emails to send!",chuck_chaos,cheerful,any
+[Smirks at disaster] "This is fine!",chuck_chaos,cheerful,crisis
+"We're all gonna die! Exciting!",chuck_chaos,cheerful,crisis
+"I love my job! Keeps me alive!",chuck_chaos,cheerful,any

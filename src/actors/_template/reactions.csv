@@ -1,0 +1,5 @@
+text,category,mode,trigger
+"That's a sound approach.",general,professional,any
+"I disagree with that assessment.",general,professional,any
+"That's outside my expertise.",domain_mismatch,neutral,non_domain
+"That requires data I don't have yet.",error,neutral,tier_restricted
