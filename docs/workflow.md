@@ -1,115 +1,223 @@
-# WORKFLOW
+# Workflow
 
-## WORKFLOW
+## Game Integration Flow
 
-### Game Integration Phases
+### Three-Phase Cycle
 
-**Three-Phase Cycle:**
+**1. PREPARATION PHASE** (Outside game)
+   - Pause game at Assignment Phase
+   - Sync game state: `python terractl.py parse --date YYYY-M-D`
+   - Generate context: `python terractl.py inject --date YYYY-M-D`
+   - Launch LLM: `python terractl.py run --date YYYY-M-D`
+   - Consult advisors via KoboldCpp chat
+   - Advisors analyze state, recommend strategy
+   - User decides final strategy
 
-1. **PREPARATION PHASE** (Outside game, with chatbots)
-   - Game paused at Assignment Phase
-   - CODEX data synced (Valentina's intel represented by scripts)
-   - User consults advisors via chat
-   - Advisors analyze, recommend strategy
-   - User decides strategy
+**2. ASSIGNMENT PHASE** (In-game)
+   - Assign councilor missions per advisor recommendations
+   - Confirm assignments
+   - Advance to Resolution Phase
 
-2. **ASSIGNMENT PHASE** (In-game)
-   - User assigns councilor missions based on strategy
-   - Confirms assignments
-   - Game enters Resolution Phase
-
-3. **RESOLUTION PHASE** (In-game)
+**3. RESOLUTION PHASE** (In-game)
    - Missions execute automatically
-   - No chat interaction
-   - Game plays out
+   - No LLM interaction during resolution
+   - Observe outcomes
 
-4. **NEXT ASSIGNMENT PHASE** → Return to Preparation Phase
+**4. NEXT ASSIGNMENT PHASE**
+   - Return to Preparation Phase
+   - Re-sync game state (new savegame)
+   - Repeat cycle
 
-### Data Sync Cycle
+## Data Sync Workflow
 
-**Monthly Intelligence Cycle:**
+### Quick Sync (After Each Turn)
 
-**Assignment Phase Timing:**
-- First ~4 months (until "New Normal" event, April-June 2026): Every 7 days
-- After "New Normal": Every 14 days
+```bash
+# 1. Save game with descriptive date
+# Example: Resistsave00005_2027-8-14.gz
 
-**Sync Trigger:** Start of Assignment Phase (when player can assign missions)
+# 2. Parse new savegame
+python terractl.py parse --date 2027-8-14
 
-**Sync Process:**
-1. User runs: `python3 codex_inject.py savegame.json.gz`
-2. Script extracts tier-filtered game state
-3. CODEX evaluates tier readiness
-4. Random advisor opens meeting
-5. CODEX posts automatic status report
-6. User can query advisors
-7. Preparation phase active until user assigns missions
+# 3. Update context
+python terractl.py inject --date 2027-8-14
 
-**Intelligence Lag:** Advisors always work with data from last Assignment Phase, creating realistic intel delay
+# 4. Context ready in generated/mistral_context.txt
+# Load manually into KoboldCpp or use `run` command
+```
 
-### Preparation Phase Flow
+### Full Rebuild (After Game Updates)
 
-**Automatic Start Sequence:**
-1. Data injection completes
-2. Random advisor selected
-3. Advisor requests CODEX report (personality-matched opener)
-4. CODEX posts tier + metrics evaluation
-5. Chat ready for user queries
+```bash
+# 1. Clean all artifacts
+python terractl.py clean
 
-**During Preparation:**
-- User queries advisors (1-2 become operational per query)
-- Others participate as spectators (reactions/comments)
-- Conversation builds within session
-- History includes current + previous prep phase
+# 2. Rebuild templates from game files
+python terractl.py build
 
-**User Actions:**
-- Ask strategic questions
-- Request specific advisor input ("Ask Lin:")
-- Query CODEX for data verification
-- Manually provide missing data if errors occur
+# 3. Parse current savegame
+python terractl.py parse --date YYYY-M-D
 
-**Session End:**
-- User returns to game
-- Assigns missions
-- Conversation history preserved
-- Next prep phase will remember this session + previous
+# 4. Generate fresh context
+python terractl.py inject --date YYYY-M-D
+```
 
-### Conversation Memory
+## Typical Session
 
-**Two-Phase Memory System:**
-- **Current prep phase:** Building now
-- **Previous prep phase:** Reference available
-- **Older history:** Cleared (bounded memory)
+### Initial Setup
 
-**Memory Reset:** At each new Assignment Phase
-- New prep phase begins
-- Current becomes previous
-- Previous is cleared
-- Fresh context for new strategic situation
+```bash
+# One-time setup
+cp .env.dist .env
+# Edit .env with paths
+python terractl.py build
+```
 
-**Benefits:**
-- Advisors not goldfish (remember immediate past)
-- Can reference "last session's strategy"
-- Context stays bounded for performance
-- Natural strategic continuity
+### Per-Turn Workflow
 
-### Tier Progression
+```bash
+# 1. Play game, reach Assignment Phase, save
+# Filename: Resistsave00042_2028-3-7.gz
 
-**Tier System:**
-- **Tier 1:** Early Consolidation (game start)
-- **Tier 2:** Industrial Expansion (unlock at 60% readiness)
-- **Tier 3:** Strategic Confrontation (unlock at 70% readiness)
+# 2. Sync state
+python terractl.py parse --date 2028-3-7
 
-**Unlock Process:**
-1. CODEX evaluates tier readiness (script-based calculation)
-2. Reports percentage and conditions met
-3. User manually triggers unlock when ready
-4. All advisors tier up together (global tier progression)
+# 3. Generate context  
+python terractl.py inject --date 2028-3-7
 
-**Post-Unlock:**
-- Load new tier-specific prompts for all advisors
-- Expand context data filtering
-- Advisors can now discuss tier-appropriate topics
-- Previous tier knowledge retained
+# 4. Launch LLM
+python terractl.py run --date 2028-3-7
+# OR manually: KoboldCpp UI → load generated/mistral_context.txt
 
----
+# 5. Chat with advisors
+# Example prompts:
+# - "Chuck, recommend covert ops priorities this turn"
+# - "CODEX, evaluate our strategic position"
+# - "Valentina, which faction is most vulnerable to infiltration?"
 
+# 6. Execute strategy in-game
+
+# 7. Advance to next turn, repeat
+```
+
+## Context Inspection
+
+Context file location: `generated/mistral_context.txt`
+
+**What's included:**
+- Advisor list with domains
+- Key hab sites (Luna, Mars) with resource ranges
+- (Extensible: add factions, councilors, control points)
+
+**Inspect before loading:**
+```bash
+cat generated/mistral_context.txt
+# or
+notepad generated/mistral_context.txt
+```
+
+Verify context contains expected game state before consulting advisors.
+
+## Multiple Campaigns
+
+### Managing Multiple Saves
+
+```bash
+# Campaign A (Resistance, 2027)
+python terractl.py parse --date 2027-7-14
+python terractl.py inject --date 2027-7-14
+
+# Campaign B (Academy, 2028)  
+python terractl.py parse --date 2028-2-3
+python terractl.py inject --date 2028-2-3
+
+# Databases persist:
+# build/savegame_2027_7_14.db
+# build/savegame_2028_2_3.db
+
+# Context regenerates on each inject
+```
+
+### Switching Campaigns
+
+Context file always reflects last `inject` command. To switch:
+
+```bash
+python terractl.py inject --date 2027-7-14  # Campaign A
+python terractl.py run --date 2027-7-14
+
+# Later...
+python terractl.py inject --date 2028-2-3   # Campaign B
+python terractl.py run --date 2028-2-3
+```
+
+## Debugging Workflow
+
+### Verbose Logging
+
+```bash
+python terractl.py -v parse --date YYYY-M-D    # INFO level
+python terractl.py -vv build                   # DEBUG level
+```
+
+Logs: `logs/terractl.log` (append mode, persists across runs)
+
+### Verify Pipeline
+
+```bash
+# 1. Check templates DB
+ls -lh build/game_templates.db
+# Should be ~5MB
+
+# 2. Check savegame DB
+ls -lh build/savegame_*.db
+# Should be ~13MB per savegame
+
+# 3. Check context file
+wc -l generated/mistral_context.txt
+# Should be 50-100 lines (expandable)
+
+# 4. Verify context content
+head -n 20 generated/mistral_context.txt
+```
+
+### Common Issues
+
+**Missing savegame:**
+```
+FileNotFoundError: No savegame found matching *_YYYY-M-D.gz
+```
+Fix: Check date format matches actual filename
+
+**Outdated context:**
+Symptom: Advisors reference old game state
+Fix: Re-run `inject` after parsing new savegame
+
+**Templates not building:**
+Normal: 7/58 templates have invalid JSON in game files
+Impact: None (advisory system uses 52 valid templates)
+
+## Advanced: Custom Context
+
+Edit `cmd_inject()` in `terractl.py` to add:
+- Faction standings
+- Councilor roster  
+- Control point distribution
+- Tech tree progress
+- Resource stockpiles
+
+Example addition:
+```python
+# In cmd_inject(), after hab sites:
+cursor.execute('SELECT data FROM gamestates WHERE key = ?',
+    ('PavonisInteractive.TerraInvicta.TIFactionState',))
+factions = json.loads(cursor.fetchone()[0])
+
+f.write("# FACTIONS\n")
+for faction in factions:
+    name = faction.get('displayName_key')
+    cp = faction.get('controlPoints', 0)
+    f.write(f"{name}: {cp} CP\n")
+```
+
+Re-inject to regenerate context with new data.

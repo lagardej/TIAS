@@ -1,0 +1,51 @@
+# TERRA INVICTA - LLM CONTEXT
+# Generated: 2026-02-15T13:02:41.578746
+
+# ADVISORS
+Chukwuemeka 'Chuck' Okonkwo - Covert/Asymmetric Operations
+CODEX - Data Archival & State Evaluation
+Jonathan "Jonny" Pratt - Orbital Operations & Space Execution
+KIM JUN-HO - Industrial & Energy Systems
+Kateryna "Katya" Bondarenko - Military Doctrine & Ground Warfare
+LIN MEI-HUA - Earth / Political Strategy
+VALENTINA MENDOZA - Intelligence & Counter-Intelligence
+
+# KEY HAB SITES
+
+## Luna
+Copernicus Crater: W=0 M=15
+D'Alembert Crater: W=0 M=10
+Korolev Crater: W=0 M=10
+Mare Imbrium: W=0 M=10
+Mare Tranquillitatis: W=0 M=10
+Peary Crater: W=10 M=10
+Shackleton Crater: W=10 M=10
+Tsiolkovskiy Crater: W=0 M=10
+Tycho Crater: W=0 M=10
+
+## Mars
+Acidalia Planitia: W=50 M=10
+Aonia Terra: W=50 M=10
+Arabia Terra: W=20 M=20
+Arcadia Planitia: W=50 M=10
+Ares Valles: W=10 M=30
+Argyre Planitia: W=50 M=10
+Daedalia Planum: W=20 M=20
+Elysium Planitia: W=20 M=20
+Hellas Planitia: W=20 M=20
+Isidis Planitia: W=20 M=20
+Noachis Terra: W=20 M=20
+Noctis Labyrinthus: W=10 M=30
+Olympus Mons: W=10 M=40
+Promethei Terra: W=50 M=10
+Schiaparelli Crater: W=10 M=30
+Scylla Scopulus: W=20 M=20
+Tantalus Fossae: W=50 M=10
+Tempe Terra: W=20 M=20
+Terra Sabaea: W=20 M=20
+Terra Sirenum: W=20 M=20
+Tharsis Montes: W=10 M=40
+Tyrrhena Terra: W=20 M=20
+Utopia Planitia: W=50 M=10
+Valles Marineris: W=20 M=20
+Xanthe Terra: W=20 M=20

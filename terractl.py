@@ -1,0 +1,647 @@
+#!/usr/bin/env python3
+"""
+TerraCtl - Terra Invicta Advisory System Control
+
+Unified build, parse, inject, and run pipeline.
+"""
+
+import sys
+import os
+import subprocess
+import argparse
+import logging
+import json
+import gzip
+import csv
+import hashlib
+import sqlite3
+from pathlib import Path
+from datetime import datetime
+
+# ============================================================================
+# LOGGING SETUP
+# ============================================================================
+
+def setup_logging(verbosity: int):
+    """Configure logging based on verbosity level"""
+    levels = {
+        0: logging.WARNING,
+        1: logging.INFO,
+        2: logging.DEBUG
+    }
+    level = levels.get(verbosity, logging.DEBUG)
+    
+    log_dir = Path(__file__).parent / "logs"
+    log_dir.mkdir(exist_ok=True)
+    log_file = log_dir / "terractl.log"
+    
+    logging.basicConfig(
+        level=level,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_file, mode='a'),
+            logging.StreamHandler()
+        ]
+    )
+
+# ============================================================================
+# ENVIRONMENT
+# ============================================================================
+
+def load_env():
+    """Load .env file"""
+    env_path = Path(__file__).parent / ".env"
+    env = {}
+    
+    if not env_path.exists():
+        logging.error(".env not found. Copy .env.dist to .env")
+        sys.exit(1)
+    
+    with open(env_path) as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#') and '=' in line:
+                key, value = line.split('=', 1)
+                env[key.strip()] = value.strip()
+    
+    return env
+
+# ============================================================================
+# CLEAN COMMAND
+# ============================================================================
+
+def cmd_clean(args):
+    """Remove build directory"""
+    import shutil
+    
+    project_root = Path(__file__).parent
+    build_dir = project_root / "build"
+    
+    if not build_dir.exists():
+        logging.info("Nothing to clean - build directory does not exist")
+        print("Nothing to clean")
+        return
+    
+    # Count files
+    file_count = sum(1 for _ in build_dir.rglob('*') if _.is_file())
+    
+    # Remove entire directory
+    shutil.rmtree(build_dir)
+    
+    logging.info("="*60)
+    logging.info(f"[OK] Clean complete")
+    logging.info(f"  Removed: build/ ({file_count} files)")
+    print(f"\n[OK] Clean complete: build/ removed ({file_count} files)")
+
+# ============================================================================
+# BUILD COMMAND
+# ============================================================================
+
+def parse_localization_file(loc_file: Path) -> dict:
+    """Parse .en localization file"""
+    localizations = {}
+    
+    with open(loc_file, encoding='utf-8') as f:
+        for line in f:
+            line = line.strip()
+            if not line or '=' not in line:
+                continue
+            
+            key, value = line.split('=', 1)
+            parts = key.split('.')
+            
+            if len(parts) < 3:
+                continue
+            
+            field = parts[1]
+            data_name = '.'.join(parts[2:])
+            
+            if data_name not in localizations:
+                localizations[data_name] = {}
+            
+            localizations[data_name][field] = value
+    
+    return localizations
+
+def merge_localization(data, localizations: dict):
+    """Recursively merge localization"""
+    if isinstance(data, dict):
+        merged = {}
+        for key, value in data.items():
+            merged[key] = merge_localization(value, localizations)
+        
+        data_name = merged.get('dataName')
+        if data_name and data_name in localizations:
+            loc = localizations[data_name]
+            if 'displayName' in loc:
+                merged['displayName'] = loc['displayName']
+            if 'description' in loc:
+                merged['description'] = loc['description']
+        
+        return merged
+    
+    elif isinstance(data, list):
+        return [merge_localization(item, localizations) for item in data]
+    
+    else:
+        return data
+
+def build_actors(src_dir: Path, build_dir: Path) -> dict:
+    """Build actor JSON files from TOML/CSV"""
+    import tomllib
+    
+    actors_src = src_dir / "actors"
+    actors_build = build_dir / "actors"
+    actors_build.mkdir(exist_ok=True)
+    
+    built_files = {}
+    
+    for actor_dir in actors_src.iterdir():
+        if not actor_dir.is_dir() or actor_dir.name.startswith('_'):
+            continue
+        
+        spec_file = actor_dir / "spec.toml"
+        if not spec_file.exists():
+            continue
+        
+        logging.info(f"Building {actor_dir.name}...")
+        
+        with open(spec_file, 'rb') as f:
+            spec = tomllib.load(f)
+        
+        # Load background
+        bg_file = actor_dir / "background.txt"
+        if bg_file.exists():
+            with open(bg_file, encoding='utf-8') as f:
+                spec['background'] = f.read()
+        
+        # Load openers
+        openers_file = actor_dir / "openers.csv"
+        if openers_file.exists():
+            spec['openers'] = []
+            with open(openers_file, encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                spec['openers'] = list(reader)
+        else:
+            logging.warning(f"  WARNING: No openers defined")
+        
+        # Load reactions
+        reactions_file = actor_dir / "reactions.csv"
+        if reactions_file.exists():
+            spec['reactions'] = []
+            with open(reactions_file, encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                spec['reactions'] = list(reader)
+        else:
+            logging.warning(f"  WARNING: No reactions defined")
+        
+        # Write JSON
+        output_file = actors_build / f"{actor_dir.name}.json"
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump(spec, f, indent=2, ensure_ascii=False)
+        
+        built_files[actor_dir.name] = str(output_file)
+        logging.info(f"  -> {output_file}")
+    
+    return built_files
+
+def build_templates(game_dir: Path, build_dir: Path) -> dict:
+    """Build templates with localization"""
+    templates_src = game_dir / "TerraInvicta_Data/StreamingAssets/Templates"
+    loc_dir = game_dir / "TerraInvicta_Data/StreamingAssets/Localization/en"
+    templates_build = build_dir / "templates"
+    templates_build.mkdir(exist_ok=True)
+    
+    built_files = {}
+    
+    for template_file in templates_src.glob("*.json"):
+        template_name = template_file.stem
+        logging.debug(f"  -> {template_name}")
+        
+        try:
+            with open(template_file, encoding='utf-8') as f:
+                template_data = json.load(f)
+        except json.JSONDecodeError as e:
+            logging.error(f"  ERROR: {template_name}: {e}")
+            continue
+        
+        # Load localization
+        loc_file = loc_dir / f"{template_name}.en"
+        localizations = {}
+        if loc_file.exists():
+            localizations = parse_localization_file(loc_file)
+        
+        # Merge
+        merged_data = merge_localization(template_data, localizations)
+        
+        # Write
+        output_file = templates_build / template_file.name
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump(merged_data, f, indent=2, ensure_ascii=False)
+        
+        built_files[template_name] = str(output_file)
+    
+    return built_files
+
+def create_templates_db(build_dir: Path, templates_dir: Path):
+    """Create SQLite DB from templates"""
+    db_path = build_dir / "game_templates.db"
+    
+    if db_path.exists():
+        db_path.unlink()
+    
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    
+    # Tables
+    cursor.execute('''CREATE TABLE space_bodies (
+        dataName TEXT PRIMARY KEY,
+        displayName TEXT,
+        objectType TEXT,
+        parent TEXT,
+        mass_kg TEXT,
+        radius_km REAL
+    )''')
+    
+    cursor.execute('''CREATE TABLE hab_sites (
+        dataName TEXT PRIMARY KEY,
+        displayName TEXT,
+        body TEXT,
+        miningProfile TEXT,
+        water INT,
+        metals INT,
+        nobles INT,
+        fissiles INT
+    )''')
+    
+    cursor.execute('''CREATE TABLE mining_profiles (
+        dataName TEXT PRIMARY KEY,
+        displayName TEXT,
+        water_mean REAL, water_width REAL, water_min REAL,
+        metals_mean REAL, metals_width REAL, metals_min REAL,
+        nobles_mean REAL, nobles_width REAL, nobles_min REAL,
+        fissiles_mean REAL, fissiles_width REAL, fissiles_min REAL
+    )''')
+    
+    cursor.execute('''CREATE TABLE traits (
+        dataName TEXT PRIMARY KEY,
+        displayName TEXT,
+        description TEXT
+    )''')
+    
+    # Load space bodies
+    bodies_file = templates_dir / "TISpaceBodyTemplate.json"
+    if bodies_file.exists():
+        with open(bodies_file, encoding='utf-8') as f:
+            bodies = json.load(f)
+        for body in bodies:
+            cursor.execute('''INSERT INTO space_bodies VALUES (?, ?, ?, ?, ?, ?)''',
+                (body.get('dataName'),
+                 body.get('displayName', body.get('friendlyName')),
+                 body.get('objectType'),
+                 body.get('barycenterName'),
+                 str(body.get('mass_kg')) if body.get('mass_kg') else None,
+                 body.get('equatorialRadius_km')))
+    
+    # Load mining profiles
+    profiles_file = templates_dir / "TIMiningProfileTemplate.json"
+    profiles_map = {}
+    if profiles_file.exists():
+        with open(profiles_file, encoding='utf-8') as f:
+            profiles = json.load(f)
+        for profile in profiles:
+            cursor.execute('''INSERT INTO mining_profiles VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+                (profile.get('dataName'),
+                 profile.get('displayName', profile.get('friendlyName', profile.get('dataName'))),
+                 profile.get('water_mean', 0), profile.get('water_width', 0), profile.get('water_min', 0),
+                 profile.get('metals_mean', 0), profile.get('metals_width', 0), profile.get('metals_min', 0),
+                 profile.get('nobles_mean', 0), profile.get('nobles_width', 0), profile.get('nobles_min', 0),
+                 profile.get('fissiles_mean', 0), profile.get('fissiles_width', 0), profile.get('fissiles_min', 0)))
+            profiles_map[profile.get('dataName')] = {
+                'water': profile.get('water_mean', 0),
+                'metals': profile.get('metals_mean', 0),
+                'nobles': profile.get('nobles_mean', 0),
+                'fissiles': profile.get('fissiles_mean', 0)
+            }
+    
+    # Load hab sites
+    sites_file = templates_dir / "TIHabSiteTemplate.json"
+    if sites_file.exists():
+        with open(sites_file, encoding='utf-8') as f:
+            sites = json.load(f)
+        for site in sites:
+            profile_name = site.get('miningProfileName')
+            resources = profiles_map.get(profile_name, {})
+            cursor.execute('''INSERT INTO hab_sites VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
+                (site.get('dataName'),
+                 site.get('displayName', site.get('friendlyName', site.get('dataName'))),
+                 site.get('parentBodyName'),
+                 profile_name,
+                 resources.get('water', 0),
+                 resources.get('metals', 0),
+                 resources.get('nobles', 0),
+                 resources.get('fissiles', 0)))
+    
+    # Load traits
+    traits_file = templates_dir / "TITraitTemplate.json"
+    if traits_file.exists():
+        with open(traits_file, encoding='utf-8') as f:
+            traits = json.load(f)
+        for trait in traits:
+            cursor.execute('''INSERT INTO traits VALUES (?, ?, ?)''',
+                (trait.get('dataName'),
+                 trait.get('displayName', trait.get('friendlyName')),
+                 trait.get('description', '')))
+    
+    conn.commit()
+    conn.close()
+    
+    logging.info(f"OK Created game database: {db_path}")
+
+def cmd_build(args):
+    """Build game templates database"""
+    env = load_env()
+    
+    project_root = Path(__file__).parent
+    src_dir = project_root / "src"
+    build_dir = project_root / "build"
+    game_dir = Path(env['GAME_INSTALL_DIR'])
+    
+    # Ensure build directory exists
+    build_dir.mkdir(exist_ok=True)
+    
+    logging.info("Building actors...")
+    actor_files = build_actors(src_dir, build_dir)
+    logging.info(f"Built {len(actor_files)} actors")
+    
+    logging.info("Building templates...")
+    template_files = build_templates(game_dir, build_dir)
+    logging.info(f"Built {len(template_files)} templates")
+    
+    logging.info("Creating database...")
+    create_templates_db(build_dir, build_dir / "templates")
+    
+    logging.info("="*60)
+    logging.info(f"[OK] Build complete: {len(actor_files) + len(template_files)} files")
+    logging.info(f"  Actors: {len(actor_files)}")
+    logging.info(f"  Templates: {len(template_files)}")
+    logging.info(f"  Database: {build_dir / 'game_templates.db'}")
+    print(f"\n[OK] Build complete: {len(actor_files) + len(template_files)} files")
+
+# ============================================================================
+# PARSE COMMAND
+# ============================================================================
+
+def find_savegame(saves_dir: Path, date_str: str) -> Path:
+    """Find savegame matching date"""
+    pattern = f"*_{date_str}.gz"
+    
+    # Ensure Path object
+    if isinstance(saves_dir, str):
+        saves_dir = Path(saves_dir)
+    
+    matches = list(saves_dir.glob(pattern))
+    
+    if not matches:
+        logging.error(f"Searched in: {saves_dir}")
+        logging.error(f"Pattern: {pattern}")
+        logging.error(f"Available files: {[f.name for f in saves_dir.glob('*.gz')]}")
+        raise FileNotFoundError(f"No savegame found matching {pattern}")
+    if len(matches) > 1:
+        logging.warning(f"Multiple matches: {[m.name for m in matches]}")
+    
+    return matches[0]
+
+def cmd_parse(args):
+    """Parse savegame to database"""
+    env = load_env()
+    
+    project_root = Path(__file__).parent
+    saves_dir = Path(env['GAME_SAVES_DIR'])
+    db_path = project_root / "build" / f"savegame_{args.date.replace('-', '_')}.db"
+    
+    logging.info(f"Finding savegame for {args.date}...")
+    savegame_path = find_savegame(saves_dir, args.date)
+    logging.info(f"Loading {savegame_path.name}...")
+    
+    with gzip.open(savegame_path, 'rt', encoding='utf-8-sig') as f:
+        data = json.load(f)
+    
+    logging.info(f"Loaded {len(json.dumps(data))/1024/1024:.1f}MB JSON")
+    
+    # Create DB
+    if db_path.exists():
+        db_path.unlink()
+    
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    
+    cursor.execute('''CREATE TABLE campaign (key TEXT PRIMARY KEY, value TEXT)''')
+    cursor.execute('''CREATE TABLE gamestates (key TEXT PRIMARY KEY, data TEXT)''')
+    
+    # Store all gamestates
+    gamestates = data.get('gamestates', {})
+    for key, value in gamestates.items():
+        cursor.execute('INSERT INTO gamestates VALUES (?, ?)', (key, json.dumps(value)))
+    
+    conn.commit()
+    conn.close()
+    
+    db_size = db_path.stat().st_size / 1024 / 1024
+    logging.info("="*60)
+    logging.info(f"[OK] Parse complete: {db_path.name}")
+    logging.info(f"  Size: {db_size:.1f}MB")
+    logging.info(f"  Keys: {len(gamestates)}")
+    print(f"\n[OK] Parse complete: {db_path.name} ({db_size:.1f}MB, {len(gamestates)} keys)")
+
+# ============================================================================
+# INJECT COMMAND
+# ============================================================================
+
+def load_actors(src_dir: Path) -> dict:
+    """Load actor specs"""
+    import tomllib
+    
+    actors = {}
+    actors_dir = src_dir / "actors"
+    
+    for actor_dir in actors_dir.iterdir():
+        if not actor_dir.is_dir() or actor_dir.name.startswith('_'):
+            continue
+        
+        spec_file = actor_dir / "spec.toml"
+        if not spec_file.exists():
+            continue
+        
+        with open(spec_file, 'rb') as f:
+            spec = tomllib.load(f)
+        
+        actors[spec['name']] = spec
+    
+    return actors
+
+def cmd_inject(args):
+    """Generate LLM context"""
+    project_root = Path(__file__).parent
+    templates_db = project_root / "build" / "game_templates.db"
+    savegame_db = project_root / "build" / f"savegame_{args.date.replace('-', '_')}.db"
+    output_file = project_root / "generated" / "mistral_context.txt"
+    output_file.parent.mkdir(exist_ok=True)
+    
+    if not templates_db.exists():
+        logging.error("Templates DB missing. Run: terractl.py build")
+        return 1
+    
+    if not savegame_db.exists():
+        logging.error(f"Savegame DB missing. Run: terractl.py parse --date {args.date}")
+        return 1
+    
+    logging.info("Loading actors...")
+    actors = load_actors(project_root / "src")
+    
+    logging.info("Generating context...")
+    
+    with open(output_file, 'w', encoding='utf-8') as f:
+        f.write("# TERRA INVICTA - LLM CONTEXT\n")
+        f.write(f"# Generated: {datetime.now().isoformat()}\n\n")
+        
+        # Actors
+        f.write("# ADVISORS\n")
+        for name, spec in actors.items():
+            display = spec.get('display_name', name)
+            domain = spec.get('domain_primary', 'Unknown')
+            f.write(f"{display} - {domain}\n")
+        f.write("\n")
+        
+        # Hab sites
+        conn = sqlite3.connect(templates_db)
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT h.body, h.displayName, 
+                   p.water_mean, p.water_width, p.water_min,
+                   p.metals_mean, p.metals_width, p.metals_min
+            FROM hab_sites h
+            JOIN mining_profiles p ON h.miningProfile = p.dataName
+            WHERE h.body IN ('Luna', 'Mars')
+            ORDER BY h.body, h.displayName
+        ''')
+        
+        f.write("# KEY HAB SITES\n")
+        current_body = None
+        for row in cursor.fetchall():
+            body, name, wm, ww, wmin, mm, mw, mmin = row
+            if body != current_body:
+                f.write(f"\n## {body}\n")
+                current_body = body
+            f.write(f"{name}: W={wm:.0f} M={mm:.0f}\n")
+        
+        conn.close()
+    
+    size = output_file.stat().st_size / 1024
+    logging.info("="*60)
+    logging.info(f"[OK] Context generated: {output_file.name}")
+    logging.info(f"  Size: {size:.1f}KB")
+    logging.info(f"  Actors: {len(actors)}")
+    print(f"\n[OK] Context ready: {output_file} ({size:.1f}KB)")
+
+# ============================================================================
+# RUN COMMAND
+# ============================================================================
+
+def cmd_run(args):
+    """Launch KoboldCpp"""
+    # Generate context first
+    cmd_inject(args)
+    
+    env = load_env()
+    kobold_dir = env.get('KOBOLDCPP_DIR')
+    model_path = env.get('KOBOLDCPP_MODEL')
+    port = env.get('KOBOLDCPP_PORT', '5001')
+    gpu_backend = env.get('KOBOLDCPP_GPU_BACKEND', 'clblast')
+    gpu_layers = env.get('KOBOLDCPP_GPU_LAYERS', '35')
+    context_size = env.get('KOBOLDCPP_CONTEXT_SIZE', '16384')
+    threads = env.get('KOBOLDCPP_THREADS', '8')
+    
+    if not kobold_dir or not model_path:
+        logging.error("KOBOLDCPP_DIR or KOBOLDCPP_MODEL not set in .env")
+        return 1
+    
+    # Expand ~ paths for Linux
+    kobold_dir = os.path.expanduser(kobold_dir)
+    model_path = os.path.expanduser(model_path)
+    
+    kobold_exe = Path(kobold_dir) / "koboldcpp.exe"
+    if not kobold_exe.exists():
+        kobold_exe = Path(kobold_dir) / "koboldcpp"  # Linux
+    
+    # Build command with GPU backend selection
+    cmd = [
+        str(kobold_exe),
+        "--model", model_path,
+        "--port", port,
+        "--contextsize", context_size,
+        "--threads", threads
+    ]
+    
+    # Add GPU backend
+    if gpu_backend == 'clblast':
+        cmd.append("--useclblast")
+    elif gpu_backend == 'vulkan':
+        cmd.append("--usevulkan")
+    elif gpu_backend == 'cublas':
+        cmd.append("--usecublas")
+    
+    # Add GPU layers
+    if gpu_layers:
+        cmd.extend(["--gpulayers", gpu_layers])
+    
+    logging.info(f"Starting KoboldCpp on port {port}")
+    logging.info(f"GPU: {gpu_backend}, Layers: {gpu_layers}, Context: {context_size}")
+    print(f"\nLaunching KoboldCpp (GPU: {gpu_backend}, {gpu_layers} layers)...")
+    
+    subprocess.run(cmd, cwd=kobold_dir)
+
+# ============================================================================
+# MAIN
+# ============================================================================
+
+def main():
+    parser = argparse.ArgumentParser(description='Terra Invicta Advisory System')
+    parser.add_argument('-v', '--verbose', action='count', default=0, 
+                       help='Increase verbosity (-v INFO, -vv DEBUG)')
+    
+    subparsers = parser.add_subparsers(dest='command', help='Command')
+    
+    subparsers.add_parser('clean', help='Remove build directory')
+    subparsers.add_parser('build', help='Build templates database')
+    
+    parse_parser = subparsers.add_parser('parse', help='Parse savegame')
+    parse_parser.add_argument('--date', required=True, help='Date (YYYY-M-D)')
+    
+    inject_parser = subparsers.add_parser('inject', help='Generate context')
+    inject_parser.add_argument('--date', required=True, help='Date (YYYY-M-D)')
+    
+    run_parser = subparsers.add_parser('run', help='Launch KoboldCpp')
+    run_parser.add_argument('--date', required=True, help='Date (YYYY-M-D)')
+    
+    args = parser.parse_args()
+    
+    setup_logging(args.verbose)
+    
+    if not args.command:
+        parser.print_help()
+        return 1
+    
+    commands = {
+        'clean': cmd_clean,
+        'build': cmd_build,
+        'parse': cmd_parse,
+        'inject': cmd_inject,
+        'run': cmd_run
+    }
+    
+    commands[args.command](args)
+
+if __name__ == '__main__':
+    main()
