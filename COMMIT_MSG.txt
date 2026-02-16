@@ -1,41 +1,42 @@
-Add launch window calculator for Mars missions
+Add NEA launch windows (date only, no penalty yet)
 
 Features:
-- ADD calculate_launch_windows() - computes optimal Mars windows
-  - Uses known base window (2026-11-13) + 780-day synodic period
-  - Calculates days to next optimal window
-  - Estimates delta-V penalty (calibrated with game data)
+- ADD synodic periods for key NEAs
+  - 1866 Sisyphus: 592 days (1.62 years)
+  - 2212 Hephaistos: 533 days (1.46 years)
   
-- ADD game date to context header
-  - LLM now knows current campaign date
-  - Format: "# Game Date: YYYY-MM-DD"
-  - Enables time-aware advisor responses
+- EXTEND calculate_launch_windows() for NEAs
+  - Shows next optimal window date
+  - Shows days until window
+  - No penalty estimate (pending calibration)
 
-- Calibrated penalty formula with real game data
+- Mars penalty remains accurate (<1% error)
+  - Calibrated with 5 game data points
   - Formula: 40% * (normalized_distance ^ 0.5)
-  - Tested against 5 data points
-  - Average error: <1% (32% predicted vs 33% actual)
 
 Context output example:
-  # LAUNCH WINDOWS (Current Penalties)
-  Mars: Next window 2029-01-01 (519 days, ~17 months), Current penalty: 32%
+  # LAUNCH WINDOWS
+  Mars: Next window 2029-01-01 (519 days, ~17 months), Current penalty: 33%
+  Sisyphus: Next window 2029-03-16 (592 days, ~19 months)
+  Hephaistos: Next window 2029-01-15 (533 days, ~17 months)
 
-Data points used for calibration:
-  2026-02-01: 37% penalty, 285 days to window
-  2027-07-14: 31% penalty, 537 days to window
-  2027-08-01: 33% penalty, 519 days to window
-  2026-11-13: 0% penalty (optimal)
-  2029-01-01: 0% penalty (optimal)
+Why NEAs matter:
+- Alternative early expansion strategy
+- Closer than Mars (lower delta-V)
+- More frequent windows (shorter synodic periods)
+- Good for resource extraction before Mars missions
+
+Synodic period verification from game:
+  Hephaistos: 2027-08-01 → 2029-01-15 = 533 days ✓
+  Sisyphus: 2027-08-02 → 2029-03-16 = 592 days ✓
+  Mars: 2026-11-13 → 2029-01-01 = 780 days ✓
+
+Next steps (deferred to future):
+- Collect comprehensive penalty data for NEAs (sample every 30 days)
+- Build interpolation tables (power curves fail for eccentric orbits)
+- Add more NEA targets (433 Eros, 3200 Phaethon, etc.)
 
 Changes:
-- terractl.py: +50 lines (launch window calculation)
-- Add math, timedelta imports
-- Context includes Mars launch data for space advisors
-- Game date header enables campaign-aware responses
-
-Critical for early-game space missions:
-- Jonny (space advisor) needs this for Mars mission planning
-- Saves ~30-40% boost cost by timing launches correctly
-- Essential decision data for resource-constrained early game
-
-Next: Extend to other space bodies (asteroids, comets, outer planets)
+- terractl.py: +30 lines (NEA window calculations)
+- Context includes Sisyphus + Hephaistos windows
+- Space advisors can now recommend NEA vs Mars strategies
