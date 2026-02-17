@@ -13,27 +13,42 @@ from src.preset.launch_windows import calculate_launch_windows
 from src.perf.performance import timed_command
 
 
-def load_actor_specs(resources_dir: Path) -> dict:
-    """Load actor specs from TOML"""
-    import tomllib
+# Context file ordering: system first, then actors alphabetically, codex last
+_CONTEXT_ORDER_FIRST = ['context_system.txt']
+_CONTEXT_ORDER_LAST  = ['context_codex.txt']
 
-    actors = {}
-    actors_dir = resources_dir / "actors"
 
-    for actor_dir in actors_dir.iterdir():
-        if not actor_dir.is_dir() or actor_dir.name.startswith('_'):
-            continue
+def load_context_files(generated_dir: Path) -> list[tuple[str, str]]:
+    """Load staged context files in canonical order.
 
-        spec_file = actor_dir / "spec.toml"
-        if not spec_file.exists():
-            continue
+    Returns list of (filename, content) in order:
+      context_system.txt, context_<actors alphabetically>, context_codex.txt
 
-        with open(spec_file, 'rb') as f:
-            spec = tomllib.load(f)
+    Warns if no context files found (stage hasn't been run).
+    """
+    if not generated_dir.exists():
+        logging.warning("generated/ directory missing - run: tias stage --date DATE")
+        return []
 
-        actors[spec['name']] = spec
+    all_files = sorted(generated_dir.glob('context_*.txt'))
+    if not all_files:
+        logging.warning("No context_*.txt files found - run: tias stage --date DATE")
+        return []
 
-    return actors
+    first = [f for f in all_files if f.name in _CONTEXT_ORDER_FIRST]
+    last  = [f for f in all_files if f.name in _CONTEXT_ORDER_LAST]
+    mid   = [f for f in all_files if f.name not in _CONTEXT_ORDER_FIRST
+                                   and f.name not in _CONTEXT_ORDER_LAST]
+
+    ordered = first + mid + last
+    result = []
+    for path in ordered:
+        content = path.read_text(encoding='utf-8').strip()
+        if content:
+            result.append((path.name, content))
+            logging.info(f"  loaded {path.name} ({len(content)} chars)")
+
+    return result
 
 
 @timed_command
@@ -43,69 +58,70 @@ def cmd_preset(args):
 
     game_date, iso_date = parse_flexible_date(args.date)
 
-    templates_db  = project_root / "build" / "game_templates.db"
-    savegame_db   = project_root / "build" / f"savegame_{iso_date}.db"
+    templates_db   = project_root / "build" / "game_templates.db"
+    savegame_db    = project_root / "build" / f"savegame_{iso_date}.db"
     templates_file = project_root / "build" / "templates" / "TISpaceBodyTemplate.json"
-    output_file   = project_root / "generated" / "mistral_context.txt"
-    output_file.parent.mkdir(exist_ok=True)
+    generated_dir  = project_root / "generated"
+    output_file    = generated_dir / "mistral_context.txt"
+    generated_dir.mkdir(exist_ok=True)
 
     if not templates_db.exists():
         logging.error("Templates DB missing. Run: tias load")
         return 1
 
     if not savegame_db.exists():
-        logging.error(f"Savegame DB missing. Run: tias parse --date {args.date}")
+        logging.error(f"Savegame DB missing. Run: tias stage --date {args.date}")
         return 1
 
-    logging.info("Loading actor specs...")
-    actors = load_actor_specs(project_root / "resources")
+    logging.info("Loading staged actor contexts...")
+    context_files = load_context_files(generated_dir)
 
     logging.info("Calculating launch windows...")
     launch_windows = calculate_launch_windows(game_date, templates_file)
 
-    logging.info("Generating context...")
+    logging.info("Assembling final context...")
 
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write("# TERRA INVICTA - LLM CONTEXT\n")
         f.write(f"# Game Date: {game_date.strftime('%Y-%m-%d')}\n")
         f.write(f"# Generated: {datetime.now().isoformat()}\n\n")
 
-        # Actors
-        f.write("# ADVISORS\n")
-        for name, spec in actors.items():
-            display = spec.get('display_name', name)
-            domain = spec.get('domain_primary', 'Unknown')
-            f.write(f"{display} - {domain}\n")
-        f.write("\n")
+        # Actor contexts from stage
+        if context_files:
+            for filename, content in context_files:
+                f.write(content)
+                f.write("\n\n")
+        else:
+            logging.warning("No actor contexts available - context will be sparse")
 
-        # Hab sites
+        # Game state: hab sites
         conn = sqlite3.connect(templates_db)
         cursor = conn.cursor()
-
         cursor.execute('''
             SELECT h.body, h.displayName,
-                   p.water_mean, p.water_width, p.water_min,
-                   p.metals_mean, p.metals_width, p.metals_min
+                   p.water_mean, p.metals_mean
             FROM hab_sites h
             JOIN mining_profiles p ON h.miningProfile = p.dataName
             WHERE h.body IN ('Luna', 'Mars')
             ORDER BY h.body, h.displayName
         ''')
-
-        f.write("# KEY HAB SITES\n")
-        current_body = None
-        for row in cursor.fetchall():
-            body, name, wm, ww, wmin, mm, mw, mmin = row
-            if body != current_body:
-                f.write(f"\n## {body}\n")
-                current_body = body
-            f.write(f"{name}: W={wm:.0f} M={mm:.0f}\n")
-
+        rows = cursor.fetchall()
         conn.close()
 
-        # Launch windows
+        if rows:
+            f.write("# GAME STATE\n\n")
+            f.write("## Key Hab Sites\n")
+            current_body = None
+            for body, name, wm, mm in rows:
+                if body != current_body:
+                    f.write(f"\n### {body}\n")
+                    current_body = body
+                f.write(f"{name}: W={wm:.0f} M={mm:.0f}\n")
+            f.write("\n")
+
+        # Game state: launch windows
         if launch_windows:
-            f.write("\n# LAUNCH WINDOWS\n")
+            f.write("## Launch Windows\n")
             for target, data in launch_windows.items():
                 f.write(f"{target}: Next window {data['next_window']} ")
                 f.write(f"({data['days_away']} days, ~{data['days_away'] // 30} months)")
@@ -115,7 +131,7 @@ def cmd_preset(args):
 
     size = output_file.stat().st_size / 1024
     logging.info("=" * 60)
-    logging.info(f"[OK] Context preset: {output_file.name}")
-    logging.info(f"  Size: {size:.1f}KB")
-    logging.info(f"  Actors: {len(actors)}")
-    print(f"\n[OK] Preset complete: {output_file} ({size:.1f}KB)")
+    logging.info(f"[OK] Preset complete: {output_file.name} ({size:.1f}KB, {len(context_files)} context files)")
+    print(f"\n[OK] Preset complete: {output_file.name} ({size:.1f}KB, {len(context_files)} actor contexts)")
+    if not context_files:
+        print("     WARNING: No actor contexts - run: tias stage --date DATE")
