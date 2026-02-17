@@ -1,0 +1,103 @@
+{
+  "session_id": "2026-02-15_build-consolidation",
+  "date": "2026-02-15",
+  "topics": ["terractl_consolidation", "sqlite_pipeline", "gpu_optimization", "documentation"],
+  "accomplishments": {
+    "script_consolidation": {
+      "from": "11 scripts in scripts/",
+      "to": "1 script: terractl.py (800 lines)",
+      "deleted": [
+        "build.py",
+        "parse_savegame.py",
+        "codex_inject.py",
+        "extract_context.py",
+        "migrate_actors.py",
+        "check_db.py",
+        "inspect_*.py",
+        "query_*.py",
+        "list_lunar_sites.py"
+      ]
+    },
+    "terractl_commands": {
+      "clean": "Remove build/ directory entirely",
+      "build": "Build game_templates.db from game files",
+      "parse": "Parse savegame_YYYY_M_D.db from .gz",
+      "inject": "Generate data/mistral_context.txt",
+      "run": "Launch KoboldCpp with GPU auto-config"
+    },
+    "database_pipeline": {
+      "game_templates.db": "Static reference (5MB, 4 tables)",
+      "savegame_YYYY_M_D.db": "Campaign state (13MB, 2 tables, 62 gamestate keys)",
+      "performance": "<1s for full pipeline"
+    },
+    "gpu_optimization": {
+      "backends": ["clblast (ROCm)", "vulkan (cross-platform)", "cublas (NVIDIA)"],
+      "recommended_amd": "clblast on Linux (~45 tok/s), vulkan on Windows (~35-40 tok/s)",
+      "context_size": "16384 (32GB RAM)",
+      "gpu_layers": "35 (RX 9070 XT)"
+    },
+    "documentation": {
+      "README.md": "Complete rewrite with current architecture",
+      "docs/workflow.md": "Updated for terractl.py commands",
+      ".env.dist": "Linux paths + Windows comments + GPU backends"
+    }
+  },
+  "design_decisions": {
+    "file_based_context": {
+      "rejected": "Gemini's :memory: DB + streaming proposal",
+      "reason": "5ms gain not worth losing debuggability",
+      "benefits": ["Inspectable context", "Version control", "Manual tweaking", "Shareable"]
+    },
+    "windows_compatibility": {
+      "encoding": "UTF-8 explicit on all file ops",
+      "console": "ASCII [OK] markers (no Unicode)",
+      "paths": "os.path.expanduser() for ~ expansion"
+    },
+    "database_naming": {
+      "game_data.db": "Renamed to game_templates.db (clearer)",
+      "savegame.db": "Now savegame_YYYY_M_D.db (dated snapshots)"
+    }
+  },
+  "hardware_specs": {
+    "cpu": "AMD Ryzen 7 9800X3D (8-core, 4.7GHz)",
+    "gpu": "AMD RX 9070 XT",
+    "ram": "32GB",
+    "target_os": "Linux (current: Windows during development)"
+  },
+  "performance_metrics": {
+    "clean": "<0.1s",
+    "build": "~0.5s (52 templates + 7 actors + DB)",
+    "parse": "~0.4s (decompress 13MB + 62 keys)",
+    "inject": "~0.01s (query + write 4KB)",
+    "total_pipeline": "<1s"
+  },
+  "files_structure": {
+    "root": ["terractl.py", ".env", ".env.dist", "README.md"],
+    "src": "actors/ (7 directories, 28 files total)",
+    "build": "game_templates.db + savegame_*.db + actors/*.json + templates/*.json",
+    "generated": "mistral_context.txt (4KB, expandable)",
+    "logs": "terractl.log (append mode)",
+    "docs": ["workflow.md", "performance.md", "technical.md"]
+  },
+  "known_issues": {
+    "game_templates": "7/58 templates have invalid JSON (trailing commas)",
+    "impact": "None - 52 valid templates sufficient",
+    "affected": [
+      "TIGlobalConfig",
+      "TIMapGroupVisualizerTemplate",
+      "TIMetaTemplate",
+      "TIPlayerTemplate",
+      "TISpaceFleetTemplate",
+      "TISpaceShipTemplate",
+      "TITimeEventTemplate"
+    ]
+  },
+  "next_steps": [
+    "Commit consolidated codebase",
+    "Test on Linux with ROCm",
+    "Implement tier-specific prompts",
+    "Add CODEX evaluation logic",
+    "Extend context extraction (factions, councilors)",
+    "Domain-specific routing"
+  ]
+}

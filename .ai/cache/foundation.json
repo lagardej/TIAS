@@ -1,0 +1,98 @@
+{
+  "project": "Terra Invicta Advisory System",
+  "version": "1.0.29",
+  "actors": {
+    "chuck": {
+      "name": "Chukwuemeka 'Chuck' Okonkwo",
+      "domain": "Covert/Asymmetric Operations",
+      "age": "44-46",
+      "nationality": "Nigeria",
+      "profession": "Operative",
+      "traits": ["Criminal", "Crew", "Hard Target", "Undercover", "Pollyanna"],
+      "personality": "Han Solo energy - cynical mercenary, professional mode vs cheerful off-duty",
+      "spectator_probability": 0.5,
+      "spectator_constraint": "not_consecutive"
+    },
+    "valentina": {
+      "domain": "Diplomacy",
+      "personality": "Former Ambassador, idealistic"
+    },
+    "lin": {
+      "domain": "Space/Engineering",
+      "personality": "Aerospace engineer"
+    },
+    "jun-ho": {
+      "domain": "Military",
+      "personality": "Tactician"
+    },
+    "jonny": {
+      "domain": "Space Science",
+      "personality": "Astronaut, multiple PhDs"
+    },
+    "katya": {
+      "domain": "Economics",
+      "personality": "Economist"
+    },
+    "codex": {
+      "domain": "State Evaluation",
+      "personality": null,
+      "role": "Data archivist, emotionless, deterministic"
+    }
+  },
+  "tier_system": {
+    "tier_1": {
+      "threshold_pct": [0, 60],
+      "scope": "Basic operations, individual targets",
+      "example": "Single assassination, simple sabotage"
+    },
+    "tier_2": {
+      "threshold_pct": [60, 70],
+      "scope": "Strategic operations, faction-level",
+      "example": "Coordinated campaigns, economic sabotage"
+    },
+    "tier_3": {
+      "threshold_pct": [70, 100],
+      "scope": "Global operations, civilization-scale",
+      "example": "Systemic dismantling, strategic warfare"
+    }
+  },
+  "file_structure": {
+    "source": {
+      "actors": "src/actors/{name}/[spec.toml, background.txt, openers.csv, reactions.csv]",
+      "prompts": "src/prompts/",
+      "docs": "docs/"
+    },
+    "build": {
+      "actors": "build/actors/*.json",
+      "templates": "build/templates/*.json",
+      "database": "build/game_data.db",
+      "metadata": "build/.buildinfo"
+    },
+    "cache": {
+      "foundation": ".ai/cache/foundation.json",
+      "decisions": ".ai/cache/decisions.json",
+      "templates": ".ai/cache/templates.json",
+      "sessions": ".ai/cache/sessions/{date}_{topic}.json"
+    }
+  },
+  "build_process": [
+    "Parse actor TOML/CSV → JSON",
+    "Load game templates + localization",
+    "Merge displayName/description",
+    "Create SQLite DB",
+    "Generate .buildinfo"
+  ],
+  "key_principles": [
+    "Flat file structure (AI-editable)",
+    "Read-only game dependency",
+    "Multiple small files over monoliths",
+    "Profile before optimize",
+    "<5s response time non-negotiable"
+  ],
+  "technology": {
+    "language": "Python 3.11+",
+    "formats": ["TOML", "CSV", "JSON"],
+    "database": "SQLite",
+    "game_version": "1.0.29"
+  }
+}

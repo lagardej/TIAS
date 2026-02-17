@@ -1,0 +1,118 @@
+{
+  "decisions": [
+    {
+      "topic": "File Format Migration",
+      "date": "2026-02-15",
+      "decision": "Markdown → TOML/CSV",
+      "rationale": [
+        "Markdown hard to parse programmatically",
+        "TOML: flat key-value, explicit types, Python 3.11+ built-in",
+        "CSV: arrays, easy AI editing",
+        "Rejected YAML: indentation-sensitive, implicit typing"
+      ],
+      "structure": {
+        "spec.toml": "Flat identity/domain/tier data",
+        "background.txt": "Pure prose",
+        "openers.csv": "30 greeting variations",
+        "reactions.csv": "55 categorized reactions"
+      }
+    },
+    {
+      "topic": "Template Optimization",
+      "date": "2026-02-15",
+      "decision": "Preserve ALL orbital mechanics",
+      "initial_proposal": "Remove rendering data",
+      "correction": "Needed for launch window calculations",
+      "lesson": "Profile before optimizing, keep operational/scientific data",
+      "preserved_fields": [
+        "semiMajorAxis_AU",
+        "eccentricity",
+        "inclination_Deg",
+        "longAscendingNode_Deg",
+        "argPeriapsis_Deg"
+      ]
+    },
+    {
+      "topic": "Localization Strategy",
+      "date": "2026-02-15",
+      "decision": "Merge into templates",
+      "analysis": {
+        "separate_size_mb": 24,
+        "merged_size_mb": 22,
+        "savings_pct": -8.5
+      },
+      "benefits": [
+        "Colocalized data",
+        "Fewer runtime lookups",
+        "Eliminates key duplication"
+      ],
+      "implementation": "Build reads .en files, merges into template JSON"
+    },
+    {
+      "topic": "Database Index",
+      "date": "2026-02-15",
+      "decision": "SQLite at build time",
+      "problem": "10MB+ JSON files exceed context window",
+      "solution": "Create game_data.db during build",
+      "tables": ["space_bodies", "hab_sites", "mining_profiles", "traits"],
+      "schema_choices": {
+        "mass_kg": "TEXT (exceeds INTEGER limit)",
+        "resource_fields": "Store mean, width, min (not just mean)",
+        "joins": "hab_sites.miningProfile → mining_profiles.dataName"
+      }
+    },
+    {
+      "topic": "Logging Strategy",
+      "date": "2026-02-15",
+      "decision": "Auto-log all Python scripts",
+      "pattern": "log_dir / (Path(__file__).stem + '.log')",
+      "benefits": [
+        "Async workflow: user runs, Claude reads log",
+        "No manual output pasting",
+        "Append mode tracks execution history"
+      ]
+    },
+    {
+      "topic": "Chuck Personality Rebalance",
+      "date": "2026-02-14",
+      "problem": "Initial version too bitter",
+      "solution": "Professional/off-duty split",
+      "modes": {
+        "professional": "Serious tactical assessments",
+        "off_duty": "Cheerful cynicism (CODEX, how fucked are we today?)"
+      },
+      "target": "Han Solo energy, not bitter mercenary"
+    },
+    {
+      "topic": "Windows Compatibility",
+      "date": "2026-02-15",
+      "decisions": {
+        "unicode": "Replace → ✓ with ASCII ->, OK",
+        "encoding": "UTF-8 explicit on all file ops",
+        "dot_dirs": "Kept .ai/ despite Windows issues"
+      }
+    },
+    {
+      "topic": "Network/Bash Limitations",
+      "date": "2026-02-15",
+      "constraint": "Bash tool blocked in Desktop mode",
+      "issues": [
+        "Cannot cd to Windows paths",
+        "WSL paths blocked",
+        "No Python execution via bash"
+      ],
+      "workaround": "User executes, Claude reads logs",
+      "status": "Works efficiently with logging pattern"
+    },
+    {
+      "topic": "Cache Format",
+      "date": "2026-02-15",
+      "decision": "JSON over Markdown",
+      "rationale": [
+        "Faster parsing",
+        "Structured queries",
+        "Machine-readable"
+      ]
+    }
+  ]
+}

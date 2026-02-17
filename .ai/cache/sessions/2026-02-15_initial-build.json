@@ -1,0 +1,69 @@
+{
+  "session_id": "2026-02-15_initial-build",
+  "date": "2026-02-15",
+  "topics": ["file_migration", "build_system", "localization", "database"],
+  "accomplishments": {
+    "file_format_migration": {
+      "from": "14 markdown files",
+      "to": "7 actor directories (28 files)",
+      "structure": ["spec.toml", "background.txt", "openers.csv", "reactions.csv"],
+      "template_created": "src/actors/_template/",
+      "script": "scripts/migrate_actors.py"
+    },
+    "build_system": {
+      "script": "scripts/build.py",
+      "lines": 510,
+      "features": [
+        "Parse TOML/CSV actors → JSON",
+        "Load game templates + localization",
+        "Merge displayName/description",
+        "Create SQLite DB",
+        "Generate .buildinfo"
+      ]
+    },
+    "template_integration": {
+      "access": "read-only game install",
+      "templates": 58,
+      "localization_files": 71,
+      "savings_mb": 2,
+      "orbital_mechanics": "all preserved"
+    },
+    "database": {
+      "file": "build/game_data.db",
+      "tables": ["space_bodies", "hab_sites", "mining_profiles", "traits"],
+      "counts": {
+        "bodies": 68,
+        "sites": 629,
+        "profiles": null,
+        "traits": 166
+      }
+    },
+    "logging": {
+      "pattern": "logs/{script_name}.log",
+      "mode": "append",
+      "workflow": "user runs → Claude reads log"
+    }
+  },
+  "issues_resolved": {
+    "windows_encoding": ["Unicode → ASCII", "Explicit UTF-8"],
+    "field_mismatches": ["parentBodyName not body", "miningProfileName not miningProfile", "resource_mean not resources"],
+    "sqlite_types": ["mass_kg as TEXT", "resources as REAL"]
+  },
+  "files_created": [
+    ".ai/cache/foundation.json",
+    ".ai/cache/decisions.json",
+    ".ai/cache/templates.json",
+    "scripts/build.py",
+    "scripts/migrate_actors.py",
+    "src/actors/_template/",
+    ".env",
+    ".gitignore"
+  ],
+  "build_output": {
+    "actors_json": 7,
+    "templates_json": 52,
+    "database": "game_data.db",
+    "total_files": 59,
+    "size_kb": 66
+  }
+}

@@ -20,8 +20,13 @@ venv/
 # Build artifacts
 build/
 generated/
-*.json
-!.buildinfo.example
+
+# Game data JSON (large, generated)
+build/**/*.json
+generated/**/*.json
+
+# Don't ignore project metadata
+# .ai/cache/ is intentionally tracked
 
 # Logs
 logs/

@@ -1,0 +1,26 @@
+{
+  "timestamp": "2026-02-15T10:30:00Z",
+  "chat_id": "conversation_identifier",
+  "summary": "Brief description of what this context contains",
+  "topics": ["topic1", "topic2"],
+  "decisions": [
+    {
+      "decision": "What was decided",
+      "rationale": "Why",
+      "context": "Additional details"
+    }
+  ],
+  "code_snippets": [
+    {
+      "file": "path/to/file",
+      "description": "What it does",
+      "code": "actual code if needed"
+    }
+  ],
+  "data": {
+    "key_findings": [],
+    "important_values": {},
+    "references": []
+  },
+  "next_steps": []
+}

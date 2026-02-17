@@ -1,0 +1,124 @@
+{
+  "game_install": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Terra Invicta\\TerraInvicta_Data\\StreamingAssets",
+  "template_counts": {
+    "templates": 58,
+    "localization_files": 71
+  },
+  "key_templates": {
+    "TISpaceBodyTemplate": {
+      "description": "Planets, moons, asteroids",
+      "count": 68,
+      "key_fields": {
+        "dataName": "Unique identifier",
+        "friendlyName": "Pre-localization display",
+        "displayName": "Post-build localized",
+        "objectType": ["Star", "Planet", "Moon", "Asteroid"],
+        "barycenterName": "Parent body",
+        "mass_kg": "Mass as TEXT (exceeds INT)",
+        "equatorialRadius_km": "Radius",
+        "orbital": ["semiMajorAxis_AU", "eccentricity", "inclination_Deg"],
+        "habSites": "Array of site dataNames"
+      }
+    },
+    "TIHabSiteTemplate": {
+      "description": "Habitable sites on bodies",
+      "count": 629,
+      "key_fields": {
+        "dataName": "Unique identifier",
+        "parentBodyName": "Body (NOT 'body')",
+        "miningProfileName": "Profile (NOT 'miningProfile')",
+        "latitude": "Coordinate",
+        "longitude": "Coordinate"
+      }
+    },
+    "TIMiningProfileTemplate": {
+      "description": "Resource generation profiles",
+      "resource_fields": {
+        "pattern": "{resource}_mean, {resource}_width, {resource}_min",
+        "resources": ["water", "metals", "nobles", "fissiles"],
+        "note": "Values are templates, actual determined on scan"
+      },
+      "example": {
+        "profile": "LunarSouthPolarMine",
+        "water_mean": 10,
+        "water_width": 10,
+        "water_min": 0,
+        "actual_range": "0-20"
+      }
+    },
+    "TITraitTemplate": {
+      "description": "Councilor traits",
+      "count": 166,
+      "key_fields": {
+        "dataName": "Unique identifier",
+        "displayName": "Merged from localization",
+        "description": "Merged from localization"
+      }
+    }
+  },
+  "localization": {
+    "format": "properties",
+    "pattern": "TemplateType.field.dataName=value",
+    "example": "TITraitTemplate.displayName.Criminal=Criminal",
+    "build_process": "Merged into template JSON"
+  },
+  "database_schema": {
+    "space_bodies": {
+      "columns": {
+        "dataName": "TEXT PRIMARY KEY",
+        "displayName": "TEXT",
+        "objectType": "TEXT",
+        "parent": "TEXT",
+        "mass_kg": "TEXT (not REAL - overflow)",
+        "radius_km": "REAL"
+      }
+    },
+    "hab_sites": {
+      "columns": {
+        "dataName": "TEXT PRIMARY KEY",
+        "displayName": "TEXT",
+        "body": "TEXT (parentBodyName)",
+        "miningProfile": "TEXT",
+        "water": "INT",
+        "metals": "INT",
+        "nobles": "INT",
+        "fissiles": "INT"
+      }
+    },
+    "mining_profiles": {
+      "columns": {
+        "dataName": "TEXT PRIMARY KEY",
+        "displayName": "TEXT",
+        "water_mean": "REAL",
+        "water_width": "REAL",
+        "water_min": "REAL",
+        "metals_mean": "REAL",
+        "metals_width": "REAL",
+        "metals_min": "REAL",
+        "nobles_mean": "REAL",
+        "nobles_width": "REAL",
+        "nobles_min": "REAL",
+        "fissiles_mean": "REAL",
+        "fissiles_width": "REAL",
+        "fissiles_min": "REAL"
+      }
+    },
+    "traits": {
+      "columns": {
+        "dataName": "TEXT PRIMARY KEY",
+        "displayName": "TEXT",
+        "description": "TEXT"
+      }
+    }
+  },
+  "common_queries": {
+    "lunar_sites": "SELECT h.displayName, p.water_mean FROM hab_sites h JOIN mining_profiles p ON h.miningProfile = p.dataName WHERE h.body = 'Luna'",
+    "water_sources": "SELECT displayName, body, water_mean FROM hab_sites h JOIN mining_profiles p ON h.miningProfile = p.dataName WHERE p.water_mean > 0 ORDER BY p.water_mean DESC"
+  },
+  "field_gotchas": {
+    "parentBodyName_not_body": "Template uses parentBodyName, not body",
+    "miningProfileName_not_miningProfile": "Template uses miningProfileName",
+    "friendlyName_vs_displayName": "friendlyName before, displayName after localization",
+    "mass_kg_as_text": "Scientific notation exceeds SQLite INTEGER"
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "session": "2026-02-17_session10-command-renames-design-guide",
+  "summary": "Command renames (theatre metaphor) + Design Philosophy section",
+  "status": "complete",
+
+  "accomplished": [
+    "Renamed src/build/ → src/load/ (cmd_build → cmd_load)",
+    "Renamed src/inject/ → src/preset/ (cmd_inject → cmd_preset)",
+    "Renamed src/run/ → src/play/ (cmd_run → cmd_play)",
+    "Renamed tests/inject/ → tests/preset/",
+    "Updated all imports, docstrings, log messages, error messages",
+    "Bulk-replaced all doc references: README, DEVELOPER_GUIDE, FEATURES, workflow.md",
+    "Added tias stage to pipeline in all docs",
+    "Rewrote .ai/context.md with new pipeline diagram and vocabulary section",
+    "Added Design Philosophy section to DEVELOPER_GUIDE.md",
+    "Theatre metaphor table with current vocabulary and established terms",
+    "Expanded all design principles from bullets to named sections with code examples"
+  ],
+
+  "command_vocabulary": {
+    "tias load":   "Load in the set — import game templates into SQLite",
+    "tias parse":  "Read the script — parse savegame into SQLite",
+    "tias stage":  "Stage the cast — assemble actor context files at current tier",
+    "tias preset": "Preset the scene — combine contexts + game state → LLM context",
+    "tias play":   "Curtain up — launch KoboldCpp"
+  },
+
+  "established_terms": {
+    "Actor":            "An advisor or CODEX (not agent/character/advisor in code)",
+    "Stage directions": "Narrative asides and reactions",
+    "Spectator":        "Advisor present but not primary responder",
+    "Tier":             "Campaign progression level",
+    "Opener":           "Session-opening line",
+    "Reaction":         "Short spectator comment"
+  },
+
+  "design_principles_documented": [
+    "Theatre Metaphor (new)",
+    "Robustness Principle / Postel's Law (expanded)",
+    "One Command, One Package (expanded with diagram)",
+    "Explicit Over Implicit (expanded, tias play exception documented)",
+    "Fail Loudly (expanded with code examples)",
+    "Silence Is Not an Error (new - inverse of Fail Loudly)",
+    "ISO 8601 Internally (new - with savegame search exception)",
+    "Game Data Is Read-Only (new)",
+    "Absolute Imports Always (expanded with anti-patterns)"
+  ],
+
+  "next_session_candidates": [
+    "Fill actor content files: personality.txt, stage.txt, examples_tier*.md (creative writing session)",
+    "Wire preset to consume context_*.txt from stage output",
+    "tias evaluate: CODEX tier calculation → tier_state.json",
+    "Context extraction extensions (faction data, councilor roster)"
+  ]
+}

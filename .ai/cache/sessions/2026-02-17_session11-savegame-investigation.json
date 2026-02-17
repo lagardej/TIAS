@@ -1,0 +1,54 @@
+{
+  "session": "2026-02-17_session11-savegame-investigation",
+  "summary": "Savegame structure investigation for tier evaluation + design decisions",
+  "status": "complete",
+
+  "accomplished": [
+    "Investigated savegame JSON structure live against Resistsave00004_2027-8-1.gz",
+    "Confirmed all key paths for tier condition data",
+    "Created docs/savegame_structure.md with full findings",
+    "Design decision: tier evaluation is integral to tias stage, not a separate command",
+    "Design decision: tias parse to be consolidated into tias stage (parse + evaluate + assemble)",
+    "Added both tasks to FEATURES.md with rationale and design notes",
+    "Updated FEATURES.md tier evaluation section with decision and reference to new doc"
+  ],
+
+  "confirmed_json_paths": {
+    "player_faction": "TIPlayerState[isAI=false].faction.value → TIFactionState[key]",
+    "mc_capacity": "pf.baseIncomes_year.MissionControl",
+    "habs": "TIHabState[faction.value == player_key]",
+    "hab_body": "hab.habSite.value → TIHabSiteState.parentBody.value → TISpaceBodyState.displayName",
+    "stations": "TIHabState[faction == player, habType == 'Station']",
+    "earth_leo": "TIHabState[faction == player, inEarthLEO == true]",
+    "fleets": "TISpaceFleetState[faction == player].barycenter.value (body key)",
+    "federations": "player nations → TINationState.federation.value → TIFederationState.members",
+    "councilor_on_hab": "TICouncilorState[location.$type contains 'Hab'].location.value"
+  },
+
+  "stable_body_keys": {
+    "2": "Sol", "3": "Mercury", "4": "Venus", "5": "Earth", "6": "Luna",
+    "7": "Mars", "8": "Phobos", "9": "Deimos", "10": "Jupiter",
+    "28": "Saturn", "55": "Uranus", "85": "Neptune", "102": "Ceres", "314": "Pluto"
+  },
+
+  "open_questions": [
+    "Shipyard module templateName string (not present in early save)",
+    "Major power definition (no isMajorPower field found — possibly GDP threshold)",
+    "Orbital ring / space elevator habType for Tier 3 condition",
+    "Fleet dockedLocation vs barycenter when fleet is docked at a hab"
+  ],
+
+  "misleading_fields": {
+    "pf.resources.MissionControl": "stockpile, not capacity",
+    "pf.missionControlUsage": "slots occupied, not total capacity",
+    "pf.habSectors": "empty in early game — use TIHabState.faction instead",
+    "TINationState.isMajorPower": "field does not exist"
+  },
+
+  "next_session_candidates": [
+    "Implement tier evaluation inside tias stage (use savegame_structure.md as reference)",
+    "Implement parse consolidation into stage (parse-if-stale logic)",
+    "Fill actor content files (personality.txt, stage.txt, examples_tier*.md)",
+    "Wire preset to consume context_*.txt from stage output"
+  ]
+}

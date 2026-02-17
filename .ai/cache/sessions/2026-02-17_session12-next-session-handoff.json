@@ -1,0 +1,68 @@
+{
+  "session": "2026-02-17_session12-next-session-handoff",
+  "summary": "Handoff note: what to tackle next session",
+  "status": "ready",
+
+  "current_state": {
+    "pipeline": "tias load → tias stage --date → tias preset --date → tias play --date",
+    "note": "parse is currently still a separate command; consolidation into stage is planned",
+    "all_commands_working": ["install", "clean", "load", "validate", "parse", "stage", "preset", "play", "perf"],
+    "stage_status": "assembles context files but uses Tier 1 always (evaluation not yet implemented)",
+    "content_files_status": "all actor stubs created (personality.txt, stage.txt, examples_tier*.md) but empty"
+  },
+
+  "priority_order": [
+    {
+      "task": "Implement tier evaluation inside tias stage",
+      "why_first": "Blocks everything else — stage needs real tier to assemble correct contexts",
+      "reference": "docs/savegame_structure.md (full JSON key mappings confirmed)",
+      "scope": [
+        "stage takes --date DATE arg (currently has no args)",
+        "load savegame DB, find player faction",
+        "calculate tier conditions, write tier_state.json",
+        "then assemble actor contexts at calculated tier"
+      ],
+      "open_questions": [
+        "Shipyard module templateName (stub as TODO for now)",
+        "Major power definition (stub: GDP > 1T threshold as guess, refine later)"
+      ]
+    },
+    {
+      "task": "Consolidate parse into stage (parse-if-stale)",
+      "why_second": "Once stage has --date, natural to also parse if DB is missing/stale",
+      "scope": [
+        "stage checks if savegame_{iso_date}.db exists and is newer than .gz file",
+        "if stale or missing: call parse logic internally",
+        "tias parse remains as explicit standalone command",
+        "--force flag to bypass staleness check"
+      ]
+    },
+    {
+      "task": "Wire preset to consume context_*.txt from stage",
+      "why_third": "preset currently ignores stage output — contexts not yet used",
+      "scope": [
+        "preset reads generated/context_*.txt files",
+        "includes them in the assembled mistral_context.txt",
+        "ordering: system → codex → each actor"
+      ]
+    },
+    {
+      "task": "Fill actor content files",
+      "why_fourth": "Creative writing, different pace — do after plumbing works",
+      "scope": [
+        "personality.txt for all 7 actors",
+        "stage.txt for all 7 actors",
+        "examples_tier1/2/3.md for all 7 actors",
+        "resources/prompts/system.txt",
+        "resources/prompts/codex_eval.txt"
+      ]
+    }
+  ],
+
+  "key_files_to_read_at_session_start": [
+    "docs/savegame_structure.md",
+    "src/stage/command.py",
+    "src/parse/command.py",
+    "FEATURES.md"
+  ]
+}

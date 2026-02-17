@@ -1,0 +1,47 @@
+{
+  "session": "2026-02-17_session9-stage-command",
+  "summary": "New tias stage command + tier prompt file structure",
+  "status": "complete",
+
+  "accomplished": [
+    "Designed tias stage command: the missing domain logic layer between resources/ and inject",
+    "Clarified full pipeline: build → parse → stage → inject → run",
+    "Created src/stage/ package with command.py",
+    "stage reads tier_state.json (fallback: Tier 1), assembles context_*.txt per actor",
+    "Wired stage into src/__main__.py",
+    "Created all stub content files for 7 actors: personality.txt, stage.txt, examples_tier1/2/3.md",
+    "Created resources/prompts/system.txt and codex_eval.txt stubs",
+    "Updated _template/ with all new file types for future actors",
+    "FEATURES.md: Tier-Specific Prompts status → In Progress"
+  ],
+
+  "architecture": {
+    "pipeline": "build → parse → stage → inject → run",
+    "stage_input": "resources/actors/*/  +  resources/prompts/  +  generated/tier_state.json",
+    "stage_output": "generated/context_<actor>.txt (one per actor)  +  context_system.txt  +  context_codex.txt",
+    "tier_source": "generated/tier_state.json (future: tias evaluate)",
+    "tier_fallback": "Tier 1 with warning if tier_state.json missing"
+  },
+
+  "new_files": {
+    "src/stage/__init__.py": "package marker",
+    "src/stage/command.py": "cmd_stage: load_tier, load_actor, assemble_actor_context, assemble_system_context, assemble_codex_context",
+    "resources/prompts/system.txt": "stub - global council rules",
+    "resources/prompts/codex_eval.txt": "stub - CODEX report template",
+    "resources/actors/*/personality.txt": "stub x7 - voice and speech patterns",
+    "resources/actors/*/stage.txt": "stub x7 - actor-specific stage directions",
+    "resources/actors/*/examples_tier1.md": "stub x7",
+    "resources/actors/*/examples_tier2.md": "stub x7",
+    "resources/actors/*/examples_tier3.md": "stub x7",
+    "resources/actors/_template/personality.txt": "template for new actors",
+    "resources/actors/_template/stage.txt": "template for new actors",
+    "resources/actors/_template/examples_tierN.md": "template for new actors"
+  },
+
+  "next_session_candidates": [
+    "Fill content: personality.txt, stage.txt, examples for all actors (content writing session)",
+    "Wire inject to consume context_*.txt files from stage output",
+    "CODEX tier evaluation command (tias evaluate)",
+    "Context extraction extensions (faction data, councilor roster)"
+  ]
+}

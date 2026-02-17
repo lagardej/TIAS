@@ -1,0 +1,95 @@
+{
+  "session_id": "2026-02-15_performance-quality",
+  "date": "2026-02-15",
+  "topics": ["performance_monitoring", "quality_tier_system", "final_technical_polish"],
+  "accomplishments": {
+    "performance_monitoring": {
+      "decorator": "@timed_command on all commands except run",
+      "logging": "logs/performance.log (CSV: timestamp, command, elapsed, status, error)",
+      "metrics": ["min", "avg", "max", "p95", "failure_count"],
+      "thresholds": {
+        "build": "<1.0s",
+        "parse": "<0.5s",
+        "inject": "<0.02s",
+        "validate": "<0.5s"
+      },
+      "cmd_perf": "Performance report with threshold violation warnings (!)"
+    },
+    "quality_tier_system": {
+      "tiers": {
+        "base": "Mistral 7B Q4 (~4GB, 45 tok/s) - Daily use",
+        "max": "Mistral 7B Q6 (~5.5GB, 40 tok/s) - 'This is the max!' (comedy)",
+        "nuclear": "Qwen2.5 14B Q4 (~8GB, 25-30 tok/s) - Superior reasoning",
+        "ridiculous": "Qwen2.5 32B Q4 (~18GB, 12-15 tok/s) - Near GPT-4",
+        "ludicrous": "Qwen2.5 72B Q2 (~28GB, 5-8 tok/s) - Spaceballs reference"
+      },
+      "usage": "python terractl.py run --date YYYY-M-D --quality nuclear",
+      "env_structure": "KOBOLDCPP_MODEL_BASE, KOBOLDCPP_MODEL_MAX, etc.",
+      "default": "KOBOLDCPP_QUALITY=base",
+      "install": "Prompts for base model only, comments others"
+    },
+    "encoding_fixes": {
+      "issue": "Windows cp1252 can't encode Unicode",
+      "solution": "Replace ⚠ with ! in perf command",
+      "pattern": "All console output uses ASCII for Windows compatibility"
+    }
+  },
+  "final_stats": {
+    "terractl_lines": 1180,
+    "commands": 8,
+    "pipeline_speed": "<1s (build + parse + inject)",
+    "performance": {
+      "build": "0.374s (target <1.0s)",
+      "parse": "0.327s (target <0.5s)",
+      "inject": "0.004s (target <0.02s)"
+    }
+  },
+  "technical_completion": {
+    "core_system": "complete",
+    "build_pipeline": "complete",
+    "safety_checks": "complete",
+    "os_support": "complete (Linux + Windows)",
+    "performance_monitoring": "complete",
+    "quality_tiers": "complete"
+  },
+  "remaining_work": {
+    "high_priority": [
+      "Tier-specific prompts (tier templates + actor overlays)",
+      "CODEX tier evaluation (script-based unlock calculation)",
+      "Domain routing (keyword matching Phase 1)"
+    ],
+    "medium_priority": [
+      "Context extraction extensions (full gamestate)",
+      "Performance monitoring analysis"
+    ],
+    "low_priority": [
+      "Conversation examples (documentation)",
+      "Quality assurance validation"
+    ]
+  },
+  "design_decisions": {
+    "quality_naming": {
+      "rationale": "Comedic escalation: max → nuclear → ridiculous → ludicrous",
+      "joke": "Users think 'max' is top tier, discover 3 more levels exist",
+      "credit": "Spaceballs reference (ludicrous speed)"
+    },
+    "performance_thresholds": {
+      "build": "1.0s allows template parsing + DB creation",
+      "parse": "0.5s for 13MB gzip decompression + SQLite insert",
+      "inject": "0.02s for simple queries + text write",
+      "validate": "0.5s for path checking"
+    },
+    "model_recommendations": {
+      "daily_use": "base (Mistral 7B Q4)",
+      "sweet_spot": "nuclear (Qwen2.5 14B Q4) - best balance for 32GB RAM",
+      "max_quality": "ridiculous (Qwen2.5 32B Q4) - still responsive",
+      "experimental": "ludicrous (Qwen2.5 72B Q2) - may OOM"
+    }
+  },
+  "commits": [
+    "Add performance monitoring system",
+    "Fix Windows Unicode encoding in perf command",
+    "Add quality tier system for model selection"
+  ],
+  "next_session": "Implement tier-specific prompt system (templates + overlays)"
+}

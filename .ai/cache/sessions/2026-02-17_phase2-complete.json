@@ -1,0 +1,59 @@
+{
+  "session": "2026-02-17_phase2-complete",
+  "summary": "Phase 2 complete + Python project conventions",
+  "status": "complete",
+
+  "accomplished": [
+    "Full Python package structure: src/ with subpackages, __init__.py everywhere",
+    "Editable install: pip install -e . → tias command available globally",
+    "Fixed pyproject.toml entry point: bin.tias → src.__main__:main",
+    "Fixed all imports: absolute paths from src.* throughout",
+    "Fixed get_project_root(): was returning src/ instead of project root (missing one .parent)",
+    "Date format flexibility: parse_flexible_date() accepts YYYY-M-D, YYYY-MM-DD, DD/MM/YYYY",
+    "ISO 8601 internal format: normalized date always YYYY-MM-DD for DB filenames",
+    "Savegame glob uses game format (no zero-padding): *_2027-8-1.gz",
+    "Build: silent error collection, single summary warning for malformed templates",
+    "Build: _repair_json() auto-recovers malformed templates (trailing commas, // comments)",
+    "Tests restructured to mirror src/ layout: tests/core/, tests/inject/",
+    "Added tests/core/test_date_utils.py for new date parsing",
+    "README preamble: AI-assisted learning project disclaimer",
+    "DEVELOPER_GUIDE.md: Robustness Principle (Postel's Law) documented with examples",
+    "All docs updated: README, DEVELOPER_GUIDE, docs/technical.md, docs/workflow.md, docs/performance.md",
+    "FEATURES.md: added auto-correction feature entry",
+    ".ai/context.md: full rewrite to reflect current state"
+  ],
+
+  "key_bugs_fixed": [
+    "pyproject.toml still referenced bin.tias:main after moving to src/__main__.py",
+    "get_project_root() returned src/ not project root (needed 3x .parent not 2x)",
+    "tias clean deleted src/build/ package instead of root build/",
+    "parse command used raw args.date instead of normalized date for DB filename",
+    "inject command used hardcoded strptime format rejecting non-ISO dates",
+    "date_utils used platform-specific %-m format specifiers (broke on Windows)"
+  ],
+
+  "architecture": {
+    "entry_point": "src/__main__.py → tias command",
+    "package_root": "src/",
+    "import_convention": "absolute: from src.core.core import ...",
+    "date_convention": "ISO 8601 internally (YYYY-MM-DD), game format for glob (*_YYYY-M-D.gz)",
+    "path_convention": "always get_project_root() → Path objects",
+    "test_convention": "tests/ mirrors src/ structure"
+  },
+
+  "decisions_made": [
+    "Shell chaining over compound commands (explicit > implicit)",
+    "ISO 8601 for internal date format (standards exist for a reason)",
+    "No framework for CLI (argparse stdlib is sufficient for 8 commands)",
+    "Robustness Principle as documented design principle",
+    "Recovered templates logged at DEBUG only, unrecoverable as single WARNING"
+  ],
+
+  "next_session_candidates": [
+    "Tier-specific prompts (FEATURES.md - High priority)",
+    "CODEX tier evaluation command (FEATURES.md - High priority)",
+    "Context extraction extensions (faction data, councilor roster)",
+    "Domain routing automation",
+    "Test coverage expansion (build, parse, inject commands)"
+  ]
+}

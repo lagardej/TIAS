@@ -1,0 +1,27 @@
+{
+  "session_id": "2026-02-16_script-refactoring-discussion",
+  "date": "2026-02-16",
+  "topics": ["terractl_size", "refactoring", "module_structure"],
+  "context": {
+    "current_state": {
+      "file": "terractl.py",
+      "lines": "~1250 lines (estimate after NEA additions)",
+      "commands": 8,
+      "concerns": "Single file growing with each feature addition"
+    },
+    "triggers": [
+      "Launch window calculation added (~80 lines)",
+      "Performance monitoring added (~120 lines)",
+      "Quality tier system added (~50 lines)",
+      "Future: Tier prompts, CODEX evaluation, domain routing will add more"
+    ]
+  },
+  "discussion_points": [
+    "When to split single file into modules?",
+    "Module structure options",
+    "Trade-offs: simplicity vs organization",
+    "Developer experience (single file = easy navigation)",
+    "Maintenance complexity threshold"
+  ],
+  "deferred_from_previous": "Launch window NEA penalty calibration (needs data collection)"
+}
