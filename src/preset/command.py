@@ -1,59 +1,84 @@
 """
-Preset command - Combine actor contexts and game state into final LLM context
+Preset command - Extract game state into domain-specific context files
+
+Writes four focused files to generated/{iso_date}/:
+  gamestate_earth.txt    - nations, CPs, climate, nuclear, faction resources (with history deltas)
+  gamestate_space.txt    - habs, stations, fleets, launch windows
+  gamestate_intel.txt    - known enemy councilors, faction intel, our councilors
+  gamestate_research.txt - finished techs, global research state
+
+Extractors live in preset/extractors/ for clean separation.
 """
 
+import json
 import logging
 import sqlite3
-from datetime import datetime
 from pathlib import Path
 
 from src.core.core import get_project_root
 from src.core.date_utils import parse_flexible_date
-from src.preset.launch_windows import calculate_launch_windows
 from src.perf.performance import timed_command
 
+# Import domain extractors
+from src.preset.extractors.earth import write_earth
+from src.preset.extractors.space import write_space
+from src.preset.extractors.intel import write_intel
+from src.preset.extractors.research import write_research
 
-# Context file ordering: system first, then actors alphabetically, codex last
-_CONTEXT_ORDER_FIRST = ['context_system.txt']
-_CONTEXT_ORDER_LAST  = ['context_codex.txt']
+
+# ---------------------------------------------------------------------------
+# Shared helpers (passed to extractors)
+# ---------------------------------------------------------------------------
+
+def _load_gs(db_path: Path, key: str):
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute("SELECT data FROM gamestates WHERE key = ?", (key,))
+    row = cursor.fetchone()
+    conn.close()
+    return json.loads(row[0]) if row else []
 
 
-def load_context_files(generated_dir: Path) -> list[tuple[str, str]]:
-    """Load staged context files in canonical order.
+def _player_faction(db_path: Path) -> tuple[int, dict]:
+    players = _load_gs(db_path, 'PavonisInteractive.TerraInvicta.TIPlayerState')
+    human = next(p for p in players if not p['Value']['isAI'])
+    faction_key = human['Value']['faction']['value']
+    factions = _load_gs(db_path, 'PavonisInteractive.TerraInvicta.TIFactionState')
+    pf = next(f['Value'] for f in factions if f['Key']['value'] == faction_key)
+    return faction_key, pf
 
-    Returns list of (filename, content) in order:
-      context_system.txt, context_<actors alphabetically>, context_codex.txt
 
-    Warns if no context files found (stage hasn't been run).
-    """
-    if not generated_dir.exists():
-        logging.warning("generated/ directory missing - run: tias stage --date DATE")
-        return []
+def _faction_name_map(db_path: Path) -> dict[int, str]:
+    factions = _load_gs(db_path, 'PavonisInteractive.TerraInvicta.TIFactionState')
+    return {f['Key']['value']: f['Value'].get('displayName', '?') for f in factions}
 
-    all_files = sorted(generated_dir.glob('context_*.txt'))
-    if not all_files:
-        logging.warning("No context_*.txt files found - run: tias stage --date DATE")
-        return []
 
-    first = [f for f in all_files if f.name in _CONTEXT_ORDER_FIRST]
-    last  = [f for f in all_files if f.name in _CONTEXT_ORDER_LAST]
-    mid   = [f for f in all_files if f.name not in _CONTEXT_ORDER_FIRST
-                                   and f.name not in _CONTEXT_ORDER_LAST]
+def _nation_map(db_path: Path) -> dict[int, dict]:
+    nations = _load_gs(db_path, 'PavonisInteractive.TerraInvicta.TINationState')
+    return {n['Key']['value']: n['Value'] for n in nations}
 
-    ordered = first + mid + last
-    result = []
-    for path in ordered:
-        content = path.read_text(encoding='utf-8').strip()
-        if content:
-            result.append((path.name, content))
-            logging.info(f"  loaded {path.name} ({len(content)} chars)")
 
-    return result
+def _hab_body_map(db_path: Path) -> dict[int, str]:
+    """hab_key → body display name"""
+    sites  = _load_gs(db_path, 'PavonisInteractive.TerraInvicta.TIHabSiteState')
+    bodies = _load_gs(db_path, 'PavonisInteractive.TerraInvicta.TISpaceBodyState')
+    body_name = {b['Key']['value']: b['Value'].get('displayName', '?') for b in bodies}
+    site_body  = {s['Key']['value']: body_name.get(s['Value'].get('parentBody', {}).get('value'), '?')
+                  for s in sites}
+    habs = _load_gs(db_path, 'PavonisInteractive.TerraInvicta.TIHabState')
+    return {
+        h['Key']['value']: site_body.get((h['Value'].get('habSite') or {}).get('value'), '?')
+        for h in habs
+    }
 
+
+# ---------------------------------------------------------------------------
+# Command entry point
+# ---------------------------------------------------------------------------
 
 @timed_command
 def cmd_preset(args):
-    """Combine actor contexts and game state into final LLM context"""
+    """Extract game state into domain-specific context files"""
     project_root = get_project_root()
 
     game_date, iso_date = parse_flexible_date(args.date)
@@ -61,9 +86,10 @@ def cmd_preset(args):
     templates_db   = project_root / "build" / "game_templates.db"
     savegame_db    = project_root / "build" / f"savegame_{iso_date}.db"
     templates_file = project_root / "build" / "templates" / "TISpaceBodyTemplate.json"
-    generated_dir  = project_root / "generated"
-    output_file    = generated_dir / "mistral_context.txt"
-    generated_dir.mkdir(exist_ok=True)
+    
+    # Output directory: generated/{iso_date}/
+    output_dir = project_root / "generated" / iso_date
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     if not templates_db.exists():
         logging.error("Templates DB missing. Run: tias load")
@@ -73,65 +99,31 @@ def cmd_preset(args):
         logging.error(f"Savegame DB missing. Run: tias stage --date {args.date}")
         return 1
 
-    logging.info("Loading staged actor contexts...")
-    context_files = load_context_files(generated_dir)
+    # Bundle helpers for extractors
+    helpers = {
+        'load_gs': _load_gs,
+        'player_faction': _player_faction,
+        'faction_name_map': _faction_name_map,
+        'nation_map': _nation_map,
+        'hab_body_map': _hab_body_map,
+    }
 
-    logging.info("Calculating launch windows...")
-    launch_windows = calculate_launch_windows(game_date, templates_file)
+    logging.info(f"Extracting game state to {output_dir.name}/...")
 
-    logging.info("Assembling final context...")
+    kb_earth    = write_earth(savegame_db, output_dir / "gamestate_earth.txt", helpers)
+    kb_space    = write_space(savegame_db, output_dir / "gamestate_space.txt", game_date, templates_file, helpers)
+    kb_intel    = write_intel(savegame_db, output_dir / "gamestate_intel.txt", helpers)
+    kb_research = write_research(savegame_db, output_dir / "gamestate_research.txt", helpers)
 
-    with open(output_file, 'w', encoding='utf-8') as f:
-        f.write("# TERRA INVICTA - LLM CONTEXT\n")
-        f.write(f"# Game Date: {game_date.strftime('%Y-%m-%d')}\n")
-        f.write(f"# Generated: {datetime.now().isoformat()}\n\n")
-
-        # Actor contexts from stage
-        if context_files:
-            for filename, content in context_files:
-                f.write(content)
-                f.write("\n\n")
-        else:
-            logging.warning("No actor contexts available - context will be sparse")
-
-        # Game state: hab sites
-        conn = sqlite3.connect(templates_db)
-        cursor = conn.cursor()
-        cursor.execute('''
-            SELECT h.body, h.displayName,
-                   p.water_mean, p.metals_mean
-            FROM hab_sites h
-            JOIN mining_profiles p ON h.miningProfile = p.dataName
-            WHERE h.body IN ('Luna', 'Mars')
-            ORDER BY h.body, h.displayName
-        ''')
-        rows = cursor.fetchall()
-        conn.close()
-
-        if rows:
-            f.write("# GAME STATE\n\n")
-            f.write("## Key Hab Sites\n")
-            current_body = None
-            for body, name, wm, mm in rows:
-                if body != current_body:
-                    f.write(f"\n### {body}\n")
-                    current_body = body
-                f.write(f"{name}: W={wm:.0f} M={mm:.0f}\n")
-            f.write("\n")
-
-        # Game state: launch windows
-        if launch_windows:
-            f.write("## Launch Windows\n")
-            for target, data in launch_windows.items():
-                f.write(f"{target}: Next window {data['next_window']} ")
-                f.write(f"({data['days_away']} days, ~{data['days_away'] // 30} months)")
-                if 'current_penalty' in data:
-                    f.write(f", Current penalty: {data['current_penalty']}%")
-                f.write("\n")
-
-    size = output_file.stat().st_size / 1024
-    logging.info("=" * 60)
-    logging.info(f"[OK] Preset complete: {output_file.name} ({size:.1f}KB, {len(context_files)} context files)")
-    print(f"\n[OK] Preset complete: {output_file.name} ({size:.1f}KB, {len(context_files)} actor contexts)")
-    if not context_files:
-        print("     WARNING: No actor contexts - run: tias stage --date DATE")
+    files = list(output_dir.glob("gamestate_*.txt"))
+    total_kb = sum(f.stat().st_size for f in files) // 1024
+    
+    logging.info(f"[OK] Preset complete: {len(files)} domain files, {total_kb}KB total")
+    print(f"\n[OK] Preset complete: {len(files)} domain files ({total_kb}KB total)")
+    for fname, kb in [
+        ("gamestate_earth.txt", kb_earth),
+        ("gamestate_space.txt", kb_space),
+        ("gamestate_intel.txt", kb_intel),
+        ("gamestate_research.txt", kb_research)
+    ]:
+        print(f"     {fname} ({kb}KB)")

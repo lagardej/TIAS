@@ -5,7 +5,7 @@ The core domain logic command. Three phases in sequence:
 
   1. PARSE   - load savegame DB (skipped if DB is current)
   2. EVALUATE - calculate tier readiness from game state, write tier_state.json
-  3. ASSEMBLE - combine resources/ + tier → generated/context_*.txt
+  3. ASSEMBLE - combine resources/ + tier → generated/{iso_date}/context_*.txt
 
 Usage:
   tias stage --date 2027-8-1
@@ -444,21 +444,23 @@ def cmd_stage(args):
     """Parse savegame, evaluate tier, assemble actor context files"""
     project_root = get_project_root()
     resources_dir = project_root / "resources"
-    generated_dir = project_root / "generated"
-    generated_dir.mkdir(exist_ok=True)
-
+    
     game_date, iso_date = parse_flexible_date(args.date)
     force = getattr(args, 'force', False)
+
+    # Output directory: generated/{iso_date}/
+    output_dir = project_root / "generated" / iso_date
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     # Phase 1: Parse
     db_path = _ensure_db(project_root, game_date, iso_date, force)
 
     # Phase 2: Evaluate
-    state = evaluate_tier(db_path, generated_dir)
+    state = evaluate_tier(db_path, output_dir)
     tier = state['current_tier']
 
     # Phase 3: Assemble
-    assembled = assemble_contexts(resources_dir, generated_dir, tier)
+    assembled = assemble_contexts(resources_dir, output_dir, tier)
 
     # Summary
     t2 = state['tier2_conditions']
