@@ -64,8 +64,13 @@ Fill personality.txt, stage.txt, and examples_tier*.md for all actors.
 **Priority:** High (blocks tier progression)
 **Complexity:** Medium
 
+**Decision:** Evaluation is an integral part of staging, not a separate command.
+`tias stage` will evaluate tier internally before assembling actor contexts.
+See `docs/savegame_structure.md` for confirmed JSON key mappings.
+
 **Goal:**
-Implement `tias evaluate` - deterministic tier readiness calculation from savegame DB.
+Implement tier evaluation inside `tias stage` - reads savegame DB, calculates
+tier readiness, writes `tier_state.json`, then assembles actor contexts.
 
 **Output:** `generated/tier_state.json` (consumed by `tias stage`)
 
@@ -85,6 +90,39 @@ Tier 3 (70%+): Meet 3 of 6 conditions
 4. Control 10+ habs
 5. Federation of 5+ major powers
 6. Councilor-level mission success rate >80%
+
+---
+
+## Consolidate parse into stage
+
+**Status:** Planned
+**Priority:** Medium
+**Complexity:** Low
+
+**Current situation:**
+`tias stage` needs the savegame DB to evaluate tier readiness, which means
+`tias parse --date DATE` must always be run before `tias stage --date DATE`.
+They are always called together — there is no use case for running stage
+without first having parsed a savegame.
+
+**Goal:**
+Merge `tias parse` into `tias stage`. Stage takes `--date DATE`, parses the
+savegame internally if the DB is missing or older than the savegame file,
+then evaluates tier, then assembles contexts.
+
+**New pipeline:**
+```
+tias load                          # once, after game install/update
+tias stage --date DATE             # parse + evaluate + assemble (was 3 commands)
+tias preset --date DATE            # combine contexts + game state
+tias play --date DATE              # curtain up
+```
+
+**Design notes:**
+- `tias parse` command remains as a standalone for debugging/explicit use
+- Stage should skip re-parse if savegame DB already exists and is newer than the .gz file
+- `--force` flag to bypass staleness check if needed
+- The `src/parse/` package stays; stage calls its logic internally
 
 ---
 
