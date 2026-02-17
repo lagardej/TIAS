@@ -88,11 +88,8 @@ This extracts and indexes game data from Terra Invicta installation.
 ### Basic Usage
 
 ```bash
-# Parse a savegame
-tias parse --date 2027-7-14
-
-# Stage actor contexts
-tias stage
+# Parse savegame, evaluate tier, assemble actor contexts
+tias stage --date 2027-7-14
 
 # Generate LLM context
 tias preset --date 2027-7-14
@@ -101,8 +98,7 @@ tias preset --date 2027-7-14
 tias play --date 2027-7-14
 
 # Or chain them together
-tias parse --date 2027-7-14 && \
-tias stage && \
+tias stage --date 2027-7-14 && \
 tias preset --date 2027-7-14 && \
 tias play --date 2027-7-14
 ```
@@ -120,8 +116,8 @@ tias play --date 2027-7-14
 | `tias clean` | Remove build directory |
 | `tias load` | Import game templates into SQLite database |
 | `tias validate` | Validate configuration |
-| `tias parse --date DATE` | Parse savegame to database |
-| `tias stage` | Assemble actor context files at current tier |
+| `tias parse --date DATE` | Parse savegame to database (explicit; stage does this automatically) |
+| `tias stage --date DATE` | Parse savegame, evaluate tier, assemble actor context files |
 | `tias preset --date DATE` | Combine actor contexts and game state |
 | `tias play --date DATE` | Launch KoboldCpp |
 | `tias perf` | Show performance statistics |
@@ -137,8 +133,7 @@ tias clean && tias load
 
 ### Complete Pipeline
 ```bash
-tias parse --date 2027-7-14 && \
-tias stage && \
+tias stage --date 2027-7-14 && \
 tias preset --date 2027-7-14 && \
 tias play --date 2027-7-14
 ```

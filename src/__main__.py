@@ -42,7 +42,9 @@ def main():
     subparsers.add_parser('load',     help='Import game templates into SQLite database')
     subparsers.add_parser('validate', help='Validate configuration and paths')
     subparsers.add_parser('perf',     help='Display performance statistics')
-    subparsers.add_parser('stage',    help='Assemble actor context files at current tier')
+    stage_parser = subparsers.add_parser('stage', help='Parse savegame, evaluate tier, assemble actor context files')
+    stage_parser.add_argument('--date', required=True, help='Date (YYYY-M-D or YYYY-MM-DD or DD/MM/YYYY)')
+    stage_parser.add_argument('--force', action='store_true', help='Re-parse savegame even if DB is current')
 
     parse_parser = subparsers.add_parser('parse', help='Parse savegame into SQLite database')
     parse_parser.add_argument('--date', required=True, help='Date (YYYY-M-D or YYYY-MM-DD or DD/MM/YYYY)')

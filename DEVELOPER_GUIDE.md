@@ -25,8 +25,7 @@ tias install
 
 # Basic workflow
 tias load
-tias parse --date 2027-7-14
-tias stage
+tias stage --date 2027-7-14
 tias preset --date 2027-7-14
 tias play --date 2027-7-14
 ```
@@ -143,14 +142,17 @@ tias parse --date 14/07/2027      # Also works
 **Output:** `build/savegame_2027-07-14.db`
 
 #### `tias stage`
-Assembles per-actor context files at current tier from `resources/`.
+Parses savegame (if needed), evaluates tier, assembles actor context files.
 
 ```bash
-tias stage
+tias stage --date 2027-7-14
+tias stage --date 2027-7-14 --force   # re-parse even if DB is current
 ```
 
-**Input:** `resources/actors/*/`, `resources/prompts/`, `generated/tier_state.json`
-**Output:** `generated/context_*.txt` (one per actor + system + codex)
+**Input:** savegame .gz, `resources/actors/*/`, `resources/prompts/`
+**Output:** `generated/tier_state.json`, `generated/context_*.txt` (one per actor + system + codex)
+
+The `--force` flag bypasses the staleness check and always re-parses the savegame.
 
 #### `tias preset`
 Combines actor contexts and game state into final LLM context.
@@ -187,8 +189,7 @@ tias clean && tias load
 ### Complete Pipeline
 
 ```bash
-tias parse --date 2027-7-14 && \
-tias stage && \
+tias stage --date 2027-7-14 && \
 tias preset --date 2027-7-14 && \
 tias play --date 2027-7-14
 ```
@@ -449,12 +450,15 @@ Each command package is **independent**:
 ### Pipeline
 
 ```
-tias load    → game templates → build/game_templates.db
-tias parse   → savegame       → build/savegame_YYYY-MM-DD.db
-tias stage   → resources/     → generated/context_*.txt
-tias preset  → context + game → generated/mistral_context.txt
+tias load    → game templates  → build/game_templates.db
+tias stage   → savegame        → build/savegame_YYYY-MM-DD.db
+             → tier evaluation → generated/tier_state.json
+             → resources/      → generated/context_*.txt
+tias preset  → context + game  → generated/mistral_context.txt
 tias play    → launch KoboldCpp
 ```
+
+`tias parse` remains available as an explicit standalone command for debugging.
 
 ### Performance Tracking
 

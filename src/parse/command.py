@@ -14,11 +14,10 @@ from src.perf.performance import timed_command
 
 
 def find_savegame(saves_dir: Path, game_date) -> Path:
-    """Find savegame matching date.
+    """Find savegame file matching date.
 
     Savegame filenames use the game's format: *_2027-8-1.gz (no zero-padding)
     """
-    # Game saves use no zero-padding: 2027-8-1 not 2027-08-01
     game_format = f"{game_date.year}-{game_date.month}-{game_date.day}"
     pattern = f"*_{game_format}.gz"
 
@@ -38,27 +37,20 @@ def find_savegame(saves_dir: Path, game_date) -> Path:
     return matches[0]
 
 
-@timed_command
-def cmd_parse(args):
-    """Parse savegame to database"""
-    env = load_env()
+def parse_savegame(saves_dir: Path, game_date, db_path: Path) -> int:
+    """Parse savegame .gz into SQLite DB. Returns number of gamestate keys.
 
-    project_root = get_project_root()
-    saves_dir = Path(env['GAME_SAVES_DIR'])
-
-    game_date, iso_date = parse_flexible_date(args.date)
-    db_path = project_root / "build" / f"savegame_{iso_date}.db"  # ISO: 2027-08-01
-
-    logging.info(f"Finding savegame for {args.date}...")
-    savegame_path = find_savegame(saves_dir, game_date)  # game format: 2027-8-1
-    logging.info(f"Loading {savegame_path.name}...")
+    Extracted as a standalone function so stage can call it internally
+    without going through argparse.
+    """
+    savegame_path = find_savegame(saves_dir, game_date)
+    logging.info(f"Parsing {savegame_path.name}...")
 
     with gzip.open(savegame_path, 'rt', encoding='utf-8-sig') as f:
         data = json.load(f)
 
     logging.info(f"Loaded {len(json.dumps(data)) / 1024 / 1024:.1f}MB JSON")
 
-    # Create DB
     if db_path.exists():
         db_path.unlink()
 
@@ -75,9 +67,22 @@ def cmd_parse(args):
     conn.commit()
     conn.close()
 
+    return len(gamestates)
+
+
+@timed_command
+def cmd_parse(args):
+    """Parse savegame to database"""
+    env = load_env()
+
+    project_root = get_project_root()
+    saves_dir = Path(env['GAME_SAVES_DIR'])
+    game_date, iso_date = parse_flexible_date(args.date)
+    db_path = project_root / "build" / f"savegame_{iso_date}.db"
+
+    n_keys = parse_savegame(saves_dir, game_date, db_path)
+
     db_size = db_path.stat().st_size / 1024 / 1024
     logging.info("=" * 60)
-    logging.info(f"[OK] Parse complete: {db_path.name}")
-    logging.info(f"  Size: {db_size:.1f}MB")
-    logging.info(f"  Keys: {len(gamestates)}")
-    print(f"\n[OK] Parse complete: {db_path.name} ({db_size:.1f}MB, {len(gamestates)} keys)")
+    logging.info(f"[OK] Parse complete: {db_path.name} ({db_size:.1f}MB, {n_keys} keys)")
+    print(f"\n[OK] Parse complete: {db_path.name} ({db_size:.1f}MB, {n_keys} keys)")

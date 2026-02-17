@@ -6,7 +6,7 @@ LLM-powered advisory system for Terra Invicta campaign gameplay. Pause at Assign
 
 **Core workflow:**
 ```
-tias parse --date YYYY-MM-DD && tias stage && tias preset --date YYYY-MM-DD && tias play --date YYYY-MM-DD
+tias stage --date YYYY-MM-DD && tias preset --date YYYY-MM-DD && tias play --date YYYY-MM-DD
 ```
 
 ---
@@ -45,11 +45,15 @@ Terra Invicta install (read-only)
 build/templates/*.json + build/game_templates.db
 
 Savegame (.gz)
-    ↓ tias parse
+    ↓ tias stage --date DATE  [phase 1: parse-if-stale]
 build/savegame_YYYY-MM-DD.db
 
+Savegame DB
+    ↓ tias stage --date DATE  [phase 2: evaluate tier]
+generated/tier_state.json
+
 resources/actors/ + resources/prompts/ + tier_state.json
-    ↓ tias stage
+    ↓ tias stage --date DATE  [phase 3: assemble]
 generated/context_*.txt (one per actor + system + codex)
 
 context_*.txt + Templates DB + Savegame DB
@@ -59,6 +63,8 @@ generated/mistral_context.txt
     ↓ tias play
 KoboldCpp (LLM server, localhost:5001)
 ```
+
+`tias parse` remains as explicit standalone for debugging.
 
 ### Databases
 - `build/game_templates.db` - space_bodies, hab_sites, mining_profiles, traits
@@ -162,14 +168,15 @@ Test structure mirrors `src/` structure.
 - Flexible date input, ISO internal format
 - Malformed template recovery
 - Editable install (`tias` command available globally)
-- Stage command assembles per-actor context files at current tier
+- Stage: parse-if-stale + tier evaluation + context assembly in one command
+- Tier evaluation: all T2/T3 conditions implemented (3 stubs: shipyard, orbital ring, mission success)
 - Full documentation: README, DEVELOPER_GUIDE, docs/
 
 ## What's Next (see FEATURES.md)
-- Fill actor content files (personality.txt, stage.txt, examples_tier*.md)
-- CODEX tier evaluation (tias evaluate → tier_state.json)
 - Wire preset to consume context_*.txt from stage
+- Fill actor content files (personality.txt, stage.txt, examples_tier*.md)
 - Context extraction extensions (faction data, councilor roster)
+- Resolve stubs: shipyard module name, orbital ring habType, mission success rate
 
 ---
 
