@@ -137,7 +137,7 @@ tias play --date DATE              # curtain up
 Phase 1: Keyword matching against `domain_keywords` in spec.toml
 Phase 2: Embedding-based semantic similarity (future)
 
-User override: `@chuck [question]` forces Chuck to respond.
+User override: `@wale [question]` forces Wale to respond.
 
 ---
 

@@ -124,7 +124,7 @@ Tier source: `generated/tier_state.json` (fallback: Tier 1, future: `tias evalua
 ---
 
 ## Actors (7 total)
-- **Chuck** - Covert/Asymmetric Operations
+- **Wale** - Covert/Asymmetric Operations
 - **Valentina** - Intelligence & Counter-Intelligence
 - **Lin** - Earth/Political Strategy
 - **Jun-Ho** - Industrial & Energy Systems

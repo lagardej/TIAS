@@ -41,7 +41,7 @@ Instead of sending the entire actor profile every turn, use the SQLite backbone 
 
     The Optimization: The actors table should store personality traits in fragments.
 
-    The Logic: If the user query is about "Combat," the Orchestrator queries the DB for actor_id = Chuck AND trait_category = 'Combat'.
+    The Logic: If the user query is about "Combat," the Orchestrator queries the DB for actor_id = Wale AND trait_category = 'Combat'.
 
     The Result: You only inject the 50 tokens of relevant personality/expertise needed for that specific turn, rather than 500 tokens of his entire biography. This preserves the KV Cache and speeds up response time.
 

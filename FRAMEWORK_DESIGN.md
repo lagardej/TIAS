@@ -39,7 +39,7 @@ src/
 ```
 resources/          # V1: Resistance campaign (hardcoded location)
 ├── actors/
-│   ├── chuck/      # Individual advisor definition
+│   ├── wale/      # Individual advisor definition
 │   │   ├── spec.toml
 │   │   ├── background.txt
 │   │   ├── personality.txt
@@ -79,7 +79,7 @@ campaigns/
 Resources structure:
 resources/
 ├── actors/
-│   ├── chuck/      # Resistance advisors (hardcoded)
+│   ├── wale/      # Resistance advisors (hardcoded)
 │   ├── jonny/
 │   └── lin/
 └── prompts/
@@ -113,11 +113,11 @@ campaigns/
 │   │   tone = "cynical_professionalism"
 │   │   
 │   │   [[actors]]
-│   │   id = "chuck"
+│   │   id = "wale"
 │   │   required = true
 │   │
 │   ├── actors/
-│   │   └── chuck/
+│   │   └── wale/
 │   └── prompts/
 └── exodus/
     ├── campaign.toml       # Different advisors
@@ -159,8 +159,8 @@ The `spec.toml` format is already campaign-agnostic. No changes needed:
 ```toml
 # Any campaign can define an actor this way
 [actor]
-name = "chuck"
-display_name = "Chukwuemeka 'Chuck' Okonkwo"
+name = "wale"
+display_name = "Wale 'Ankledeep' Oluwaseun"
 domain_primary = "Covert/Asymmetric Operations"
 domain_keywords = ["assassination", "sabotage", "infiltration", "wetwork"]
 
@@ -180,8 +180,8 @@ cannot_discuss = "Strategic faction weakening campaigns"
 
 **Campaign-specific flavor:**
 - Goes in `personality.txt` and `examples_tier1.md`
-- Example: Resistance Chuck is cynical mercenary
-- Example: Exodus Chuck could be idealistic volunteer
+- Example: Resistance Wale is cynical mercenary
+- Example: Exodus Wale could be idealistic volunteer
 - Same domain (covert ops), different personality
 
 ## Tier Evaluation (Campaign-Agnostic)
@@ -331,8 +331,8 @@ mode = "files"  # or "sqlite" for V2 AGENTIC
    - **Decision:** A (keeps campaigns self-contained)
 
 2. **Actor ID conflicts:**
-   - What if Resistance and Exodus both have a "Chuck"?
-   - **Decision:** Namespaced by campaign (`resistance_chuck` vs `exodus_chuck`)
+   - What if Resistance and Exodus both have a "Wale"?
+   - **Decision:** Namespaced by campaign (`resistance_wale` vs `exodus_wale`)
 
 3. **Shared actors across campaigns:**
    - Should some actors be reusable (e.g., CODEX)?
@@ -346,7 +346,7 @@ mode = "files"  # or "sqlite" for V2 AGENTIC
 
 - `V1_TO_V2_ROADMAP.md` - Migration timeline
 - `AGENTIC.txt` - V2 architecture proposals
-- `resources/actors/chuck/spec.toml` - Example campaign-agnostic actor spec
+- `resources/actors/wale/spec.toml` - Example campaign-agnostic actor spec
 
 ---
 

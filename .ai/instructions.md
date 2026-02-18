@@ -82,7 +82,7 @@
 - Memory: current + previous prep phase only
 - Tier system: global unlock at 60% (Tier 2), 70% (Tier 3)
 - CODEX: script-based evaluation, emotionless reporting
-- Chuck: Pollyanna trait = cheerful cynicism (not bitter pessimism)
+- Wale: Pollyanna trait = cheerful cynicism (not bitter pessimism)
 
 ### Proactive Behavior
 - **Don't blindly accept user statements**

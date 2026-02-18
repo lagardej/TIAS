@@ -66,7 +66,7 @@ TerraInvicta/
 │
 ├── resources/                     # Game data (not installed)
 │   ├── actors/                   # AI advisor definitions
-│   │   ├── chuck/               # Covert operations
+│   │   ├── wale/               # Covert operations
 │   │   ├── valentina/           # Intelligence
 │   │   ├── lin/                 # Political strategy
 │   │   ├── jun-ho/              # Industrial systems

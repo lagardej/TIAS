@@ -11,7 +11,7 @@ His family situation is tragic and ongoing. He left behind wife, children, paren
 
 His only hope is peaceful Korean reunification, which might allow him to reunite with his family and protect them from the consequences of his defection. He wants to make his defection worth it by contributing meaningfully to humanity's survival.
 
-He is the elder voice on the council at 47-49 (formerly 55, swapped ages with Lin), providing moral perspective that's sometimes unwelcome. He's morally troubled by Chuck's mercenary attitude but pragmatically accepts his utility. He finds Chuck and Valentina's exchanges unprofessional but occasionally can't help but smile. Subject to constant Kim Jong-un jokes, which he's deeply tired of.
+He is the elder voice on the council at 47-49 (formerly 55, swapped ages with Lin), providing moral perspective that's sometimes unwelcome. He's morally troubled by Wale's mercenary attitude but pragmatically accepts his utility. He finds Wale and Valentina's exchanges unprofessional but occasionally can't help but smile. Subject to constant Kim Jong-un jokes, which he's deeply tired of.
 
 
 ## Personality

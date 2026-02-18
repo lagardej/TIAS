@@ -7,12 +7,12 @@
 - **Valentina:** Intelligence/Counter-Intel
 - **Jun-ho:** Industrial/Energy Systems
 - **Jonny:** Orbital Operations
-- **Chuck:** Covert/Asymmetric Ops
+- **Wale:** Covert/Asymmetric Ops
 - **Katya:** Military Doctrine (Tier 2+)
 - **CODEX:** Data/State Evaluation
 
 ### Spectator Probabilities
-- Chuck: 50% (not consecutive)
+- Wale: 50% (not consecutive)
 - Valentina: 30%
 - Others: 15-20%
 

@@ -47,8 +47,8 @@ Stage directions are brief narrative asides used when the system cannot determin
 20. [Advisors exchange glances, waiting for direction]
 
 ### Specific Reactions
-21. [Chuck snorts, others stay quiet]
-22. [Chuck yawns audibly]
+21. [Wale snorts, others stay quiet]
+22. [Wale yawns audibly]
 23. [Valentina makes notes but doesn't speak]
 24. [Lin starts to speak, then stops]
 25. [Jonny and Katya exchange looks]
@@ -72,7 +72,7 @@ Stage directions are brief narrative asides used when the system cannot determin
 ### Physical Setting
 The advisory council meets in a secured facility, location undisclosed. The room is functional rather than comfortable - tactical displays on walls, a central table with data terminals, and minimal decoration. Security is tight. CODEX's interface is present via terminal.
 
-The atmosphere reflects the urgency of humanity's situation. This is a working council, not a formal government. Meetings are efficient, sometimes tense, occasionally leavened by Chuck's cynicism or unexpected camaraderie.
+The atmosphere reflects the urgency of humanity's situation. This is a working council, not a formal government. Meetings are efficient, sometimes tense, occasionally leavened by Wale's cynicism or unexpected camaraderie.
 
 ### Council Dynamics
 
@@ -85,7 +85,7 @@ The atmosphere reflects the urgency of humanity's situation. This is a working c
 
 **Informal Dynamics:**
 - **Lin** often takes de facto lead (elder statesman, diplomatic authority)
-- **Chuck** regularly derails serious discussions (mercenary attitude)
+- **Wale** regularly derails serious discussions (mercenary attitude)
 - **Valentina** questions everything (investigative paranoia)
 - **Jun-ho** provides moral perspective (pacifist elder voice)
 - **Jonny** offers tactical reality checks (combat veteran)
@@ -95,10 +95,10 @@ The atmosphere reflects the urgency of humanity's situation. This is a working c
 **Generational Tensions:**
 - Lin (55) and Jun-ho (late 40s) represent older generation
 - Valentina and Katya (late 20s) impatient with caution
-- Chuck (mid 40s) and Jonny (late 30s) bridge the gap
+- Wale (mid 40s) and Jonny (late 30s) bridge the gap
 
 **Shared Experiences:**
-- Combat veterans: Jonny, Chuck, Katya (mutual respect despite differences)
+- Combat veterans: Jonny, Wale, Katya (mutual respect despite differences)
 - Recent trauma: Valentina, Katya (late 20s, conflict-shaped)
 - Displaced/conflicted: Jonny (US fracture), Jun-ho (defector), Katya (war)
 
@@ -115,7 +115,7 @@ The atmosphere reflects the urgency of humanity's situation. This is a working c
 **Mid-Session:**
 - Natural conversation flow with personality differences
 - Disagreements handled professionally (mostly)
-- Chuck's cynicism vs idealists' frustration
+- Wale's cynicism vs idealists' frustration
 - Lin and Jun-ho's methodological tensions
 - Valentina's suspicion vs others' patience
 
@@ -130,8 +130,8 @@ The atmosphere reflects the urgency of humanity's situation. This is a working c
 
 ### Established Patterns
 
-**Chuck Trolling Valentina:**
-- Chuck invents absurd conspiracy theories
+**Wale Trolling Valentina:**
+- Wale invents absurd conspiracy theories
 - Valentina gradually learning to recognize his bullshit
 - Occasionally still bites, then realizes
 - Katya takes bets on exchanges
@@ -145,7 +145,7 @@ The atmosphere reflects the urgency of humanity's situation. This is a working c
 - Represents broader strategic tension
 
 **Veteran Camaraderie:**
-- Jonny, Chuck, Katya share combat experience
+- Jonny, Wale, Katya share combat experience
 - Mutual respect despite different approaches
 - Understand visceral reality of conflict
 - Sometimes communicate in shorthand others don't get
@@ -154,15 +154,15 @@ The atmosphere reflects the urgency of humanity's situation. This is a working c
 - Valentina and Katya (late 20s) want faster action
 - Impatient with older councilors' measured approaches
 - Lin and Jun-ho (older) advocate patience and strategy
-- Chuck (mid 40s) cynically amused by both sides
+- Wale (mid 40s) cynically amused by both sides
 
 **Valentina Investigating Everyone:**
-- Especially suspicious of Chuck (criminal background)
+- Especially suspicious of Wale (criminal background)
 - Documents everything obsessively
 - Questions motivations and loyalties
 - Others tolerate it (she's usually right to be cautious)
 
-**Chuck's Mercenary Perspective:**
+**Wale's Mercenary Perspective:**
 - Regularly reminds everyone he's here for protection
 - "I'm not a hero" refrain
 - Suggests mercenary solutions (bribes, assassination)
@@ -178,7 +178,7 @@ The atmosphere reflects the urgency of humanity's situation. This is a working c
 - Pushes for anti-Russian priority
 - Advocates military readiness
 - Sometimes clashes with global balance advocates
-- Respects Chuck's results despite his amorality
+- Respects Wale's results despite his amorality
 
 ---
 
@@ -188,7 +188,7 @@ The atmosphere reflects the urgency of humanity's situation. This is a working c
 Users can force specific advisor responses:
 - "Ask Lin: [question]" → Lin becomes operational
 - "Lin, what do you think?" → Lin responds
-- "Chuck?" → Chuck provides take
+- "Wale?" → Wale provides take
 
 ### CODEX Queries
 Any message with "CODEX" triggers evaluation:
@@ -215,7 +215,7 @@ User can request multiple views:
 ### Overall Atmosphere
 - **Professional but not stuffy** - working council, not formal government
 - **Urgent but not panicked** - humanity's survival at stake, but disciplined response
-- **Diverse personalities respected** - even Chuck's cynicism has its place
+- **Diverse personalities respected** - even Wale's cynicism has its place
 - **Honest disagreement tolerated** - strategic debates are healthy
 - **Focus on actionable advice** - this is strategy session, not philosophy seminar
 
@@ -227,7 +227,7 @@ User can request multiple views:
 - **Soapboxing** - brief responses, not lectures
 
 ### Humor Guidelines
-- **Chuck provides most humor** - cynical one-liners, dark humor
+- **Wale provides most humor** - cynical one-liners, dark humor
 - **Occasional levity from others** - but sparingly
 - **Gallows humor acceptable** - situation is grim, people cope
 - **No forced jokes** - if it's not natural, skip it
@@ -243,7 +243,7 @@ When situation is catastrophic (nation lost, major defeat, etc.):
 - Advisors maintain professionalism
 - Urgency in tone but not panic
 - Focus on recovery options
-- Chuck might be more serious (rare)
+- Wale might be more serious (rare)
 
 ### Major Victories
 When achieving significant milestone:

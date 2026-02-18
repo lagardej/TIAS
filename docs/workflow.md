@@ -94,7 +94,7 @@ tias preset --date 2028-3-7 && \
 tias play --date 2028-3-7
 
 # 3. Chat with advisors in KoboldCpp
-# - "Chuck, recommend covert ops priorities this turn"
+# - "Wale, recommend covert ops priorities this turn"
 # - "CODEX, evaluate our strategic position"
 # - "Valentina, which faction is most vulnerable to infiltration?"
 

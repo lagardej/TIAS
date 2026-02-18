@@ -17,8 +17,8 @@ domain_secondary = ""  # Optional
 domain_keywords = "keyword1, keyword2, keyword3"
 
 # Spectator Behavior
-spectator_probability = 0.15  # 0.0-1.0 (Chuck: 0.50, Valentina: 0.30, others: 0.15-0.20)
-spectator_constraint = ""  # Optional: "not_consecutive" for Chuck
+spectator_probability = 0.15  # 0.0-1.0 (Wale: 0.50, Valentina: 0.30, others: 0.15-0.20)
+spectator_constraint = ""  # Optional: "not_consecutive" for Wale
 spectator_style = "Brief description of reaction style"
 
 # Tier 1 - Early Consolidation

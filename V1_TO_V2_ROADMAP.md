@@ -30,7 +30,7 @@ Routing: Keyword-based domain matching
 
 #### 2. Fill Minimal Actor Content 📝
 **Priority Actors (Tier 1 only):**
-- **Chuck (Deadpool)** - Covert/Asymmetric Operations
+- **Wale (Deadpool)** - Covert/Asymmetric Operations
   - personality.txt: Nigerian Deadpool, mercenary with email scam side hustle
   - examples_tier1.md: 3-5 assassination/sabotage scenarios
   - Tone: Sardonic, deadpan absurdity, "English isn't my main language"
@@ -38,12 +38,12 @@ Routing: Keyword-based domain matching
 - **Jonny (Captain America)** - Orbital Operations & Space Execution  
   - personality.txt: Straight-laced, professional, frowns on vulgarity
   - examples_tier1.md: 3-5 Luna/Mars logistics scenarios
-  - Dynamic: Disapproves of Chuck's language, gets "English is official in Nigeria" response
+  - Dynamic: Disapproves of Wale's language, gets "English is official in Nigeria" response
   
 - **Lin** - Earth/Political Strategy
   - personality.txt: Pragmatic political operator
   - examples_tier1.md: 3-5 control point/nation management scenarios
-  - Role: Counterbalance to Chuck's chaos
+  - Role: Counterbalance to Wale's chaos
 
 **Deferred to Post-V1:**
 - Valentina (Intel)
@@ -67,9 +67,9 @@ tias preset --date 2027-8-1
 tias play --date 2027-8-1
 
 # Test queries:
-# - "Chuck, should we hit the HF guy in Moscow?" (in-domain)
-# - "Chuck, what's our orbital logistics plan?" (out-of-domain → Jonny)
-# - "Jonny, should we assassinate someone?" (out-of-domain → Chuck)
+# - "Wale, should we hit the HF guy in Moscow?" (in-domain)
+# - "Wale, what's our orbital logistics plan?" (out-of-domain → Jonny)
+# - "Jonny, should we assassinate someone?" (out-of-domain → Wale)
 ```
 
 ### Success Criteria
@@ -86,7 +86,7 @@ tias play --date 2027-8-1
 3. **Memory Needs:** Did lack of history hurt multi-turn conversations?
 4. **Performance:** VRAM vs speed tradeoffs with 14B model
 5. **UX Flow:** Does "pause → consult → play" feel natural?
-6. **Actor Dynamics:** Do Chuck/Jonny interactions land?
+6. **Actor Dynamics:** Do Wale/Jonny interactions land?
 
 ---
 
@@ -132,7 +132,7 @@ tias play --date 2027-8-1
 ```
 V1: File-based static contexts
 generated/{date}/
-  ├── context_chuck.txt      (full personality, 500 tokens)
+  ├── context_wale.txt      (full personality, 500 tokens)
   ├── context_jonny.txt      (full personality, 500 tokens)
   ├── gamestate_earth.txt    (nations CSV, 2KB)
   └── tier_state.json        (tier evaluation)
@@ -192,7 +192,7 @@ orchestrator.py
    - Changes persist to campaign DB immediately
 
 3. **Spectator Interjections**
-   - Chuck heckling in background while Jonny explains orbital mechanics
+   - Wale heckling in background while Jonny explains orbital mechanics
    - Async generation of side commentary
    
 4. **Campaign Switching**
@@ -201,7 +201,7 @@ orchestrator.py
 
 5. **Semantic Routing**
    - User: "How do we slow down their expansion?"
-   - System embeds query, matches to Lin (political) not Chuck (assassinations)
+   - System embeds query, matches to Lin (political) not Wale (assassinations)
    - No keyword false positives
 
 ### Performance Optimizations
@@ -340,7 +340,7 @@ def migrate_actor_files_to_db(actor_dir: Path, db: sqlite3.Connection):
 **Single-shot consultation feels limiting:**
 → Prioritize V2 multi-turn dialogue
 
-**Chuck/Jonny dynamic doesn't land:**
+**Wale/Jonny dynamic doesn't land:**
 → Revise personalities in V1 before committing to V2 DB
 
 **Tier boundaries get ignored:**
@@ -385,9 +385,9 @@ def migrate_actor_files_to_db(actor_dir: Path, db: sqlite3.Connection):
 - `AGENTIC.txt` - V2 architecture proposals (Gemini collaboration)
 - `FEATURES.md` - Original V1 feature list
 - `docs/savegame_structure.md` - Game state parsing reference
-- `.ai/cache/sessions/` - Session-by-session development history
+- `.ai/sessions/` - Session-by-session development history
 
 ---
 
 **Last Updated:** 2026-02-18 (Session 13)  
-**Next Session Priority:** Fill Chuck/Jonny/Lin content, test V1 pipeline end-to-end
+**Next Session Priority:** Fill Wale/Jonny/Lin content, test V1 pipeline end-to-end

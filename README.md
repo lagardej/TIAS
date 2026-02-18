@@ -27,7 +27,7 @@ LLM-powered advisory system for Terra Invicta campaign gameplay. Provides domain
 ## Overview
 
 **Advisors (7 total):**
-- **Chuck** - Covert/Asymmetric Operations
+- **Wale** - Covert/Asymmetric Operations
 - **Valentina** - Intelligence & Counter-Intelligence  
 - **Lin** - Earth/Political Strategy
 - **Jun-Ho** - Industrial & Energy Systems
