@@ -1,2 +1,0 @@
-# KATYA BONDARENKO - Personality
-# TODO: Voice, speech patterns, and behavioral traits for the LLM.

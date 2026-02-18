@@ -1,3 +1,0 @@
-# ACTOR_NAME - Stage Directions
-# TODO: Actor-specific spectator reactions and stage directions.
-# Used when this actor is a spectator or when the scene calls for their specific reaction.

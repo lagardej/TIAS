@@ -1,3 +1,0 @@
-# CODEX - Background
-# CODEX is not a person. It is a data archival and state evaluation system.
-# No background needed - see personality.txt for operational description.

@@ -1,3 +1,0 @@
-# CODEX - Stage Directions
-# CODEX has no spectator behavior. It only speaks when directly addressed or at session open.
-# TODO: Define session-opening report format as a stage direction.

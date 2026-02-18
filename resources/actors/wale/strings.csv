@@ -1,0 +1,86 @@
+type,text,category,mode,trigger,note
+reaction,Wrong tool for that target.,professional,serious,covert_ops,
+reaction,Infiltration won't work there.,professional,serious,covert_ops,
+reaction,That's viable.,professional,neutral,covert_ops,
+reaction,ROI's poor on that hit.,professional,serious,covert_ops,
+reaction,I've done this before. Different approach needed.,professional,serious,covert_ops,
+reaction,Target's too exposed.,professional,serious,covert_ops,
+reaction,That'll work.,professional,neutral,covert_ops,
+reaction,Timing's wrong.,professional,serious,covert_ops,
+reaction,That's optimistic! I love the energy!,general,cheerful,any,
+reaction,"Sure, that'll work!",general,cheerful,any,
+reaction,And I'm just here for the money! We all know this!,general,cheerful,any,
+reaction,Have fun with that! I'll watch!,general,cheerful,any,
+reaction,Not my problem! Exciting though!,general,cheerful,any,
+reaction,Sounds expensive! Love it!,general,cheerful,any,
+reaction,You're all insane! Never change!,general,cheerful,any,
+reaction,That's how you get killed! Can't wait to see it!,general,cheerful,any,
+reaction,I've seen this go wrong before! Good times!,general,cheerful,any,
+reaction,Good luck with that! I'm rooting for you!,general,cheerful,any,
+reaction,Is someone paying for this? Just checking!,mercenary,cheerful,any,
+reaction,How much does this cost? Curious!,mercenary,cheerful,any,
+reaction,There's an easier way that involves money!,mercenary,cheerful,any,
+reaction,Just hire it done! I know a guy!,mercenary,cheerful,any,
+reaction,Why are we doing this the hard way? So fun to watch!,mercenary,cheerful,any,
+reaction,Or we could just kill them! Simple!,inappropriate,cheerful,non_covert,
+reaction,Bribe someone! Problem solved!,inappropriate,cheerful,non_covert,
+reaction,I know a guy who could handle this!,inappropriate,cheerful,any,
+reaction,Have you considered arson? Very effective!,inappropriate,cheerful,non_covert,
+reaction,Assassination is always an option! Just saying!,inappropriate,cheerful,non_covert,
+reaction,"Valentina, did you know the moon is fake?",trolling,mischievous,valentina_present,
+reaction,I heard Jun-ho is actually three children in a lab coat!,trolling,cheerful,jun_ho_present,
+reaction,The real conspiracy is that there are no conspiracies!,trolling,cheerful,valentina_present,
+reaction,"Birds aren't real, Valentina! Wake up!",trolling,cheerful,valentina_present,
+reaction,The Earth is hollow and we're living inside it!,trolling,cheerful,valentina_present,
+reaction,You're too easy!,trolling,cheerful,valentina_bites,
+reaction,Getting better! Proud of you!,trolling,cheerful,valentina_ignores,
+reaction,"Jonny, are you sure your parents aren't Korean?",jokes,cheerful,jonny_present,
+reaction,Did they clone you? That's too many qualifications!,jokes,cheerful,jonny_present,
+reaction,Next you'll tell me you're also a lawyer!,jokes,cheerful,jonny_present,
+reaction,"Remind me why I'm still here? Oh right, protection!",existential,cheerful,any,
+reaction,The Initiative bounty is looking more reasonable!,existential,cheerful,any,
+reaction,I should have stayed in Lagos! Miss those days!,existential,cheerful,any,
+reaction,"This is why I work alone! Well, used to!",existential,cheerful,any,
+reaction,You people are exhausting! In a good way!,existential,cheerful,any,
+reaction,Now that's practical.,approval,neutral,any,
+reaction,"Finally, someone making sense.",approval,neutral,any,
+reaction,That might actually work.,approval,neutral,any,
+reaction,[Nods approvingly without comment],approval,neutral,any,
+reaction,I'm going back to sleep! Wake me when it's interesting!,chuck_chaos,cheerful,any,
+reaction,"Not my circus, not my monkeys! Love the show though!",chuck_chaos,cheerful,any,
+reaction,That's above my pay grade! Fun to watch!,chuck_chaos,cheerful,any,
+reaction,I don't get paid enough for this! Still here though!,chuck_chaos,cheerful,any,
+reaction,Can we wrap this up? I have emails to send!,chuck_chaos,cheerful,any,
+reaction,"[Smirks at disaster] ""This is fine!""",chuck_chaos,cheerful,crisis,
+reaction,We're all gonna die! Exciting!,chuck_chaos,cheerful,crisis,
+reaction,I love my job! Keeps me alive!,chuck_chaos,cheerful,any,
+opener,"CODEX, how fucked are we today?",cheerful,,,Like asking about the weather
+opener,"CODEX, tell me the good news! We're screwed, right?",sunny,,,Enthusiastic
+opener,"CODEX, what's the damage? I'm excited!",upbeat,,,
+opener,"Alright CODEX, how bad is it? Can't wait!",cheerful,,,Curious
+opener,"CODEX, give us the bad news!",enthusiastic,,,
+opener,"CODEX, lay it on us! This should be fun!",bright,,,
+opener,"CODEX, what fresh hell awaits? Love it!",cheerful,,,Anticipating disaster
+opener,"CODEX, hit me with it! I'm ready!",sunny,,,
+opener,"CODEX, let's hear how badly we're doing!",enthusiastic,,,Pessimism
+opener,"CODEX, time for our daily dose of misery!",cheerful,,,Routine
+opener,"CODEX, what disaster are we facing now?",bright,,,Curious
+opener,"CODEX, which fire are we putting out today?",cheerful,,,Professional interest
+opener,"CODEX, status report. Make it painful!",enthusiastic,,,Masochism
+opener,"CODEX, what's today's catastrophe?",sunny,,,
+opener,"CODEX, surprise me! Or don't. Either way!",cheerful,,,Indifferent
+opener,"CODEX, show me the mess!",enthusiastic,,,
+opener,"CODEX, how deep are we in it?",cheerful,,,Curious
+opener,"CODEX, what are we dealing with? Exciting!",upbeat,,,
+opener,"CODEX, assess our lovely situation!",sunny,,,Sarcasm
+opener,"CODEX, let's see what we're up against! Fun!",cheerful,,,
+opener,"CODEX, give me the grim details!",enthusiastic,,,Requesting bad news
+opener,"CODEX, what's the crisis du jour?",bright,,,
+opener,"CODEX, tell me we're not completely doomed!",sunny,,,Hoping for disaster
+opener,"CODEX, reality check time! I'm sure it's terrible!",sunny,,,Pessimism
+opener,"CODEX, what's the terrible news?",enthusiastic,,,
+opener,"CODEX, how badly did we fuck up this time?",cheerful,,,Accountability
+opener,"CODEX, we're probably still fucked, right?",sunny,,,Confirmation seeking
+opener,"CODEX, what's trying to kill us today?",cheerful,,,Morbid curiosity
+opener,"CODEX, give me a reason to keep working!",upbeat,,,Plea
+opener,"CODEX, entertain me with our failures!",cheerful,,,Requesting disaster report

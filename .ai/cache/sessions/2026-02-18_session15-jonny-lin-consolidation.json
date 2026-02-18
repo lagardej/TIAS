@@ -1,0 +1,112 @@
+{
+  "session": "2026-02-18_session15-jonny-lin-consolidation",
+  "summary": "Jonny and Lin complete, actor file format consolidated to 3 formats",
+  "status": "ready_for_migration_scripts_then_system_txt",
+
+  "completed_this_session": [
+    "Jonny personality.txt written: 4 sections (voice, optimism, domain, relationships, limits)",
+    "Jonny spec.toml filled: domain keywords, tier scopes, error messages",
+    "Jonny stage.txt written: 13 spectator reactions, 7 stage directions",
+    "Jonny examples_tier1.md written: 5 examples + out-of-tier",
+    "Lin personality.txt written: 5 sections (voice, philosophy, domain, relationships, limits)",
+    "Lin spec.toml filled: domain keywords, tier scopes, error messages",
+    "Lin stage.txt written: 12 spectator reactions, 7 stage directions",
+    "Lin examples_tier1.md written: 5 examples + out-of-tier",
+    "Lin age clarification: oldest in council, Jun-ho closest (gap of several years)",
+    "File format consolidation: 3 prose files → persona.md, 2 CSVs → strings.csv",
+    "stage/command.py updated: load_actor() reads persona.md with legacy fallback",
+    "_extract_section() helper added to stage/command.py",
+    "scripts/migrate_persona.py written: dry-run/write/clean modes",
+    "scripts/migrate_strings.py written: dry-run/write/clean modes",
+    "resources/actors/_template/README.md updated: new structure documented"
+  ],
+
+  "key_decisions": [
+    {
+      "decision": "Jonny voice: one register, direct, no performance",
+      "rationale": "Against Wale's four registers, Jonny having one is the joke and the point. Steve Rogers energy — optimism as a decision made after full information, not a default."
+    },
+    {
+      "decision": "Jonny/Wale dynamic: checks and balances, mutual",
+      "rationale": "They disagree on method, agree on objective. Each has quietly concluded the other is the correction for their own blind spot. Neither says it."
+    },
+    {
+      "decision": "Jonny: what's right isn't always what's legal",
+      "rationale": "Not too much — it's Rogers. For Jonny it has extra weight: he's Pawnee. He knows what 'legal' has historically meant for his people. He doesn't use it as a blank check — he tracks when he crosses lines."
+    },
+    {
+      "decision": "Lin voice: precision not coldness, one register",
+      "rationale": "Decades in rooms where every word is weighed. Economy of language. Dry humor lands late. Silence and timing over volume."
+    },
+    {
+      "decision": "Lin philosophy: sequencer, not pacifist",
+      "rationale": "Violence is the last tool in the sequence, not forbidden. When she approves a Wale operation the council understands she has exhausted the alternatives. The approval means something."
+    },
+    {
+      "decision": "Lin/Valentina: parallel Cassandra experience, different mechanism",
+      "rationale": "Lin was dismissed as a woman and as Taiwanese. Valentina was dismissed as a conspiracy theorist. Different mechanism, same experience. Lin acts on Valentina's assessments without attribution. Valentina has noticed."
+    },
+    {
+      "decision": "File consolidation: persona.md + strings.csv",
+      "rationale": "Source files are authored by humans and compiled downstream. 3 prose files → persona.md (## Background / ## Personality / ## Stage). 2 CSVs → strings.csv (type column: reaction/opener). Examples stay separate — phased authoring is a real use case."
+    },
+    {
+      "decision": "Keep examples_tier*.md separate",
+      "rationale": "Written in phases over time. T1 done before T2. The separation makes the authoring state legible. Not broken."
+    }
+  ],
+
+  "character_state": {
+    "jonny": {
+      "files_complete": ["spec.toml", "persona.md (pending migration)", "examples_tier1.md"],
+      "files_todo": ["examples_tier2.md", "examples_tier3.md"],
+      "note": "personality.txt + stage.txt exist, will merge to persona.md via script"
+    },
+    "lin": {
+      "files_complete": ["spec.toml", "persona.md (pending migration)", "examples_tier1.md"],
+      "files_todo": ["examples_tier2.md", "examples_tier3.md"],
+      "note": "personality.txt + stage.txt exist, will merge to persona.md via script"
+    },
+    "wale": {
+      "files_complete": ["spec.toml", "persona.md (pending migration)", "examples_tier1.md"],
+      "files_todo": ["examples_tier2.md", "examples_tier3.md"],
+      "note": "all prose files exist, will merge to persona.md via script"
+    }
+  },
+
+  "migration_required": {
+    "scripts": [
+      "python scripts/migrate_persona.py --clean",
+      "python scripts/migrate_strings.py --clean"
+    ],
+    "what_changes": [
+      "background.txt + personality.txt + stage.txt → persona.md per actor",
+      "reactions.csv + openers.csv → strings.csv per actor",
+      "Old files deleted by --clean flag"
+    ],
+    "pipeline_impact": "load_actor() already updated with persona.md support + legacy fallback"
+  },
+
+  "next_session_priority": [
+    {
+      "task": "Run migration scripts",
+      "scope": "python scripts/migrate_persona.py --clean && python scripts/migrate_strings.py --clean"
+    },
+    {
+      "task": "Write system.txt",
+      "scope": "Global rules: tier boundaries, domain routing, response format. Keep minimal — V1 proof-of-concept."
+    },
+    {
+      "task": "End-to-end validation",
+      "scope": "tias stage --date 2027-8-1, tias preset, tias play. Test queries for Wale/Jonny/Lin. VRAM check."
+    }
+  ],
+
+  "council_dynamics_established": {
+    "triangle": "Wale (method, outcome) / Jonny (principle, builds things) / Lin (sequence, patience)",
+    "checks_and_balances": "Each is the correction for the others' blind spots. None says it.",
+    "younger_council": "Valentina (Cassandra, late 20s) / Katya (battle-hardened, late 20s)",
+    "elders": "Lin (55, oldest) / Jun-ho (47-49, closest gap to Lin)",
+    "angel_demon": "Jonny right shoulder / Wale left shoulder, especially re: Valentina"
+  }
+}

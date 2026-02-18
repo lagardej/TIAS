@@ -1,2 +1,0 @@
-# KIM JUN-HO - Personality
-# TODO: Voice, speech patterns, and behavioral traits for the LLM.

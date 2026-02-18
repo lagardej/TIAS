@@ -1,3 +1,0 @@
-# ACTOR_NAME - Personality
-# TODO: Voice, speech patterns, and behavioral traits for the LLM.
-# How does this actor talk? What do they say when bored, engaged, or asked something outside their domain?

@@ -329,7 +329,11 @@ def evaluate_tier(db_path: Path, generated_dir: Path) -> dict:
 # ---------------------------------------------------------------------------
 
 def load_actor(actor_dir: Path) -> dict:
-    """Load all files for one actor into a dict."""
+    """Load all files for one actor into a dict.
+
+    Source format (preferred): persona.md with ## Background / ## Personality / ## Stage sections
+    Legacy fallback: background.txt + personality.txt + stage.txt (read individually)
+    """
     spec_file = actor_dir / "spec.toml"
     if not spec_file.exists():
         return {}
@@ -337,13 +341,22 @@ def load_actor(actor_dir: Path) -> dict:
     with open(spec_file, 'rb') as f:
         actor = tomllib.load(f)
 
-    for filename, key in [
-        ('background.txt',  'background'),
-        ('personality.txt', 'personality'),
-        ('stage.txt',       'stage_directions'),
-    ]:
-        filepath = actor_dir / filename
-        actor[key] = filepath.read_text(encoding='utf-8').strip() if filepath.exists() else ''
+    persona_file = actor_dir / "persona.md"
+    if persona_file.exists():
+        # New consolidated format
+        content = persona_file.read_text(encoding='utf-8')
+        actor['background']       = _extract_section(content, 'Background')
+        actor['personality']      = _extract_section(content, 'Personality')
+        actor['stage_directions'] = _extract_section(content, 'Stage')
+    else:
+        # Legacy fallback
+        for filename, key in [
+            ('background.txt',  'background'),
+            ('personality.txt', 'personality'),
+            ('stage.txt',       'stage_directions'),
+        ]:
+            filepath = actor_dir / filename
+            actor[key] = filepath.read_text(encoding='utf-8').strip() if filepath.exists() else ''
 
     for tier in (1, 2, 3):
         filepath = actor_dir / f"examples_tier{tier}.md"
@@ -352,6 +365,16 @@ def load_actor(actor_dir: Path) -> dict:
         )
 
     return actor
+
+
+def _extract_section(content: str, section_name: str) -> str:
+    """Extract content under a ## Section header from a markdown file.
+    Returns empty string if section not found.
+    """
+    import re
+    pattern = rf'^## {re.escape(section_name)}\s*\n(.*?)(?=^## |\Z)'
+    match = re.search(pattern, content, re.MULTILINE | re.DOTALL)
+    return match.group(1).strip() if match else ''
 
 
 def _strip_todo_comments(text: str) -> str:

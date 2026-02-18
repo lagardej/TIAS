@@ -1,0 +1,8 @@
+type,text,category,mode,trigger,note
+reaction,That's a sound approach.,general,professional,any,
+reaction,I disagree with that assessment.,general,professional,any,
+reaction,That's outside my expertise.,domain_mismatch,neutral,non_domain,
+reaction,That requires data I don't have yet.,error,neutral,tier_restricted,
+opener,"CODEX, provide situational assessment.",neutral,,,Standard professional opener
+opener,"CODEX, status report.",neutral,,,Brief variant
+opener,"CODEX, let's see where we stand.",casual,,,Informal variant
