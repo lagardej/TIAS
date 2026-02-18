@@ -1,0 +1,65 @@
+{
+  "session": "2026-02-19_session17-v1-validation",
+  "summary": "End-to-end validation complete. V1 infrastructure confirmed working. Prompt-as-system-prompt approach confirmed insufficient for persona fidelity. Tagged as v1.",
+  "status": "v1_complete_ready_for_v2_planning",
+
+  "completed_this_session": [
+    "Identified --memf flag removed from KoboldCpp — replaced with --preloadstory",
+    "--useclblast removed from KoboldCpp — replaced with --usevulkan, default updated",
+    "play/command.py rewritten: KoboldCpp launches as background process, interactive chat loop via OpenAI-compatible API",
+    "requests added to pyproject.toml dependencies",
+    "context_size increased to 32768 for Qwen",
+    ".env model paths corrected (casing, filenames)",
+    "End-to-end pipeline validated: stage → preset → play",
+    "V1 validation results documented"
+  ],
+
+  "validation_results": {
+    "working": [
+      "Full pipeline: tias stage → tias preset → tias play",
+      "KoboldCpp launches and serves OpenAI-compatible API",
+      "Context assembled correctly (79KB, 1647 lines)",
+      "CODEX reads gamestate data (CO2, nations, factions, space, intel, research)",
+      "Domain routing: unaddressed political query correctly routed to Lin",
+      "Qwen 32B loads and responds within context window"
+    ],
+    "failing": [
+      "Character voice: all actors default to helpful-AI-assistant mode",
+      "Tier enforcement: completely ignored by model",
+      "Unmatched query: model forced a response instead of stage direction",
+      "Response length: 4-5 paragraphs instead of 2-3 sentences",
+      "CODEX: omits data with [Details omitted for brevity] placeholders"
+    ],
+    "root_cause": "Model's RLHF helpful-assistant behavior overpowers persona instructions. 79KB flat context dumps all actors simultaneously — model cannot weight one character's voice against its defaults. Structural problem, not a tuning problem.",
+    "verdict": "Infrastructure confirmed. Prompt-as-system-prompt approach confirmed insufficient. V2 JIT fragment injection is the correct fix — not prompt engineering patches."
+  },
+
+  "v1_limitations_confirmed": [
+    "Flat context dump: all 7 actors injected simultaneously, model cannot isolate relevant persona",
+    "No tier enforcement in Python layer: relies on model following instructions, which it doesn't",
+    "No query routing in Python layer: relies on model reading domain table, which it does (partial win)",
+    "Response format uncontrolled: model decides length and style",
+    "Unmatched queries reach LLM: should be intercepted in Python before LLM call"
+  ],
+
+  "v2_fixes_these_structurally": [
+    "JIT fragment injection: only relevant persona fragments sent per query (~500 tokens vs 20000)",
+    "Tier enforcement as Python hard filter: LLM never called for out-of-tier queries",
+    "Stage directions selected in Python: LLM never called for unmatched queries",
+    "max_tokens controlled per query type",
+    "Domain routing confirmed working in V1 — carry forward"
+  ],
+
+  "key_decisions": [
+    {
+      "decision": "Do not patch V1 system.txt or reorder examples",
+      "rationale": "Would improve V1 marginally. Would not fix structural problem. V2 replaces the approach entirely."
+    },
+    {
+      "decision": "Tag V1 and move to V2 planning",
+      "rationale": "V1 served its purpose: validate infrastructure, confirm the limits of flat context injection. Both confirmed."
+    }
+  ],
+
+  "next_session": "V2 architecture planning. JIT fragment injection, Python-layer routing and tier enforcement, SQLite persona_fragments schema."
+}
