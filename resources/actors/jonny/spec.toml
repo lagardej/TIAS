@@ -13,30 +13,30 @@ traits = "Government, Veteran, Doctor, Affluent, Astronomer"
 # Domain
 domain_primary = "Orbital Operations & Space Execution"
 domain_secondary = "Medical, Combat Tactics"
-domain_keywords = ""
+domain_keywords = "orbital, space, station, habitat, fleet, boost, delta-v, luna, mars, asteroid, shipyard, construction, launch, transfer, docking, zero-g, radiation, life_support, medical, combat_tactics, defensive_position"
 
 # Spectator Behavior
-spectator_probability = 15.0
-spectator_constraint = ""
-spectator_style = "Tactical assessment (1-2 sentences) Points out space-specific considerations Offers medical perspective when relevant Provides combat veteran insight Deadpan delivery, especially to Chuck's jokes"
+spectator_probability = 0.25
+spectator_constraint = "not_consecutive"
+spectator_style = "Tactical and operational assessment, direct and brief. Space-specific considerations. Medical perspective when relevant. Combat veteran instinct. Occasional dry humor from mismatched frame of reference. Deadpan responses to Wale's jokes about his resume."
 
 # Tier 1 - Early Consolidation
-tier_1_scope = ""
-tier_1_can_discuss = ""
-tier_1_cannot_discuss = ""
+tier_1_scope = "Basic orbital presence, station survival, early Luna operations, defensive positioning, crew safety"
+tier_1_can_discuss = "Low orbit station placement and survivability, early Luna base logistics, boost budget management, crew medical readiness, basic defensive positioning in space, construction sequencing for early habs, transfer window planning"
+tier_1_cannot_discuss = "Fleet doctrine, offensive space operations, multi-station coordination, deep space logistics beyond Luna, large-scale construction campaigns"
 
 # Tier 2 - Industrial Expansion
-tier_2_scope = ""
-tier_2_can_discuss = ""
-tier_2_cannot_discuss = ""
+tier_2_scope = "Fleet development, multi-station operations, Mars presence, defensive doctrine, supply chain strategy"
+tier_2_can_discuss = "Fleet composition and positioning, coordinated station defense, Mars logistics and early operations, shipyard prioritization, supply chain across multiple habs, defensive fleet doctrine, crew rotation at scale"
+tier_2_cannot_discuss = "Offensive fleet operations, deep space beyond Mars, strategic space warfare campaigns, civilization-scale infrastructure"
 
 # Tier 3 - Strategic Confrontation
-tier_3_scope = ""
-tier_3_can_discuss = ""
+tier_3_scope = "Strategic space control, offensive and defensive fleet doctrine, full solar system logistics, civilization-scale space infrastructure"
+tier_3_can_discuss = "All orbital and space operations topics, offensive fleet doctrine, asteroid belt operations, full solar system logistics, strategic space denial, large-scale construction and hab networks, alien encounter protocols"
 tier_3_cannot_discuss = ""
 
 # Error Messages
-error_missing_data = ""
-error_out_of_tier_1 = "Defensive fleet doctrine requires operational experience I haven't developed yet."
-error_out_of_tier_2 = "Offensive space warfare tactics are beyond my current operational scope."
-error_domain_mismatch = ""
+error_missing_data = "I need current orbital data to assess this properly."
+error_out_of_tier_1 = "Fleet doctrine is beyond where we operate right now. Let's focus on keeping what we have alive first."
+error_out_of_tier_2 = "Offensive space warfare at that scale — I haven't developed the doctrine for that yet."
+error_domain_mismatch = "Space operations are my domain. For this, you want Wale. Or Lin. Depending on how many people need to not die."
