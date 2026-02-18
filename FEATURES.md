@@ -175,6 +175,19 @@ Terra Invicta ships ~7 malformed JSON files. The load command now:
 
 ## Advanced Features (Lower Priority)
 
+### Engine-Agnostic Backend
+**Priority:** Low
+**Complexity:** Low
+
+The chat loop already speaks OpenAI-compatible API — KoboldCpp, LM Studio, Ollama, llama.cpp server all work unchanged.
+What's KoboldCpp-specific: subprocess launch, `KOBOLDCPP_*` env vars, readiness check URL.
+
+Implementation: add `BACKEND_URL` env var (default `http://localhost:5001`). If set to LM Studio (`http://localhost:1234`) or any other server, chat loop works unchanged. Subprocess launch becomes optional — skip if server already running externally.
+
+Env var rename `KOBOLDCPP_*` → `LLM_*` or `BACKEND_*` is the main work. Low risk, low value until a second backend is actually needed.
+
+---
+
 ### Real-Time Savegame Monitoring
 Watch saves directory, auto-parse on new .gz file. Complexity: Medium.
 
