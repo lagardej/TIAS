@@ -1,0 +1,70 @@
+{
+  "session": "2026-02-18_session16-system-txt",
+  "summary": "system.txt written and trimmed. AGENTIC.txt updated to V17. Two Wale strings added.",
+  "status": "ready_for_end_to_end_validation",
+
+  "completed_this_session": [
+    "AGENTIC.txt updated V15 → V17: SSoT principle, pre/post processing pipeline, FK constraint enforcement, embeddings row in schema",
+    "Chuck references corrected across remaining files (intersession)",
+    ".ai/cache/ flattened: sessions and cache files moved one level up, cache/ deleted",
+    "wale/strings.csv: added simulation troll (deadpan, valentina_present) and black cat deja vu (operational, deadpan, any)",
+    "system.txt written: coordinator role, CSV domain routing, tier boundary enforcement, CODEX rules, constraints, unmatched query stage directions",
+    "system.txt trimmed: 110 lines → 57 lines. Redundant sections collapsed.",
+    "Domain routing format: markdown table → CSV-style list (fewer tokens, cleaner parse)"
+  ],
+
+  "key_decisions": [
+    {
+      "decision": "system.txt kept as filename",
+      "rationale": "Convention from LLM tooling. Not worth breaking for cosmetic gain."
+    },
+    {
+      "decision": "CSV-style domain routing over markdown table",
+      "rationale": "LLM tokenizes markdown tables as prose anyway. Flat list is fewer tokens and less ambiguous."
+    },
+    {
+      "decision": "system.txt as coordinator instructions, not design doc",
+      "rationale": "Short stable prefix = KV cache stays valid across turns. Everything longer belongs in stage.md or actor files."
+    },
+    {
+      "decision": "black cat line categorized as 'operational', not 'trolling'",
+      "rationale": "Not addressed to anyone. Wale doing threat assessment in a register the room may not recognize as threat assessment. Structurally different from Valentina trolls."
+    },
+    {
+      "decision": "simulation line delivered deadpan, not cheerful",
+      "rationale": "Lands differently from existing Valentina trolls. Flat delivery makes it ambiguous — Valentina can't be sure he doesn't mean it."
+    }
+  ],
+
+  "system_txt_structure": {
+    "sections": ["opening (coordinator role)", "RESPONSE FORMAT", "DOMAIN ROUTING", "TIER BOUNDARIES", "CODEX", "CONSTRAINTS", "UNMATCHED QUERIES"],
+    "lines": 57,
+    "tier_placeholder": "{tier} appears twice — top (context) and TIER BOUNDARIES (enforcement)",
+    "domain_format": "CSV-style: Advisor: Domain"
+  },
+
+  "next_session_priority": [
+    {
+      "task": "tias stage --date 2027-8-1",
+      "scope": "Verify pipeline reads persona.md correctly post-migration. Check generated context files."
+    },
+    {
+      "task": "tias preset --date 2027-8-1",
+      "scope": "Verify system.txt + actor contexts assemble correctly into mistral_context.txt"
+    },
+    {
+      "task": "tias play --date 2027-8-1",
+      "scope": "First live session. Test queries for Wale, Jonny, Lin. VRAM check. Response quality baseline."
+    },
+    {
+      "task": "Update context.md",
+      "scope": "Actor file format changed (persona.md, strings.csv). context.md still references old filenames."
+    }
+  ],
+
+  "files_written_this_session": [
+    "resources/prompts/system.txt",
+    "AGENTIC.txt (V17)",
+    "resources/actors/wale/strings.csv (2 lines added)"
+  ]
+}
