@@ -6,7 +6,7 @@ from setuptools import setup, find_namespace_packages
 
 setup(
     name="tias",
-    version="0.1.0",
+    version="2.0.0",
     description="Terra Invicta Advisory System - AI-powered game advisors",
     author="Grumpy",
     python_requires=">=3.11",
