@@ -1,9 +1,10 @@
 # Wale Oluwaseun "Ankledeep" - Actor Specification
 
 # Identity
-name = "wale"
-display_name = "Wale Oluwaseun \"Ankledeep\""
-callsign = "Ankledeep"
+first_name = "Wale"
+family_name = "Oluwaseun"
+nickname = "Ankledeep"
+display_name = "Wale Oluwaseun"
 age = "44-46"
 nationality = "Nigeria"
 profession = "Operative"
@@ -35,6 +36,10 @@ tier_2_cannot_discuss = "Systemic dismantling of faction operations, global coor
 tier_3_scope = "Systemic dismantling across multiple theaters, coordinated destabilization at strategic scale, escalation threshold modeling, complete asymmetric warfare doctrine"
 tier_3_can_discuss = "All covert operations topics, strategic-scale coordination, global asymmetric warfare, systemic faction operations, civilization-scale disruption"
 tier_3_cannot_discuss = ""
+
+[interrupt]
+weight = 30
+can_interrupt_own_debate = false
 
 # Error Messages
 error_missing_data = "Can't plan operations without target intelligence."

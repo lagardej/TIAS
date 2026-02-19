@@ -39,7 +39,7 @@
 ## Project Structure
 
 ```
-TerraInvicta/
+TIAS/
 ├── src/                           # Python package (installed)
 │   ├── __main__.py               # Entry point (tias command)
 │   ├── core/                     # Core utilities
@@ -112,7 +112,7 @@ TerraInvicta/
 ```bash
 # Clone repository
 git clone <repo-url>
-cd TerraInvicta
+cd TIAS
 
 # Install in editable mode
 pip install -e .

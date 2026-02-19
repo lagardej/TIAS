@@ -173,6 +173,19 @@ Terra Invicta ships ~7 malformed JSON files. The load command now:
 
 ---
 
+## V2 Future Expansion
+
+### Tier System Expansion
+**Priority:** Low (3 tiers sufficient for current scope)
+**Complexity:** Medium
+
+Current system: 3 tiers, thresholds at 60% (T2) and 70% (T3).
+Tier count is hardcoded in tier_check logic and spec.toml error message keys.
+If expanded: add tier_N_scope/can/cannot blocks to spec.toml, add error_out_of_tier_N,
+and update tier_check confidence thresholds (currently: correct tier = full, one below = hedged, two below = hard block).
+
+---
+
 ## Advanced Features (Lower Priority)
 
 ### Engine-Agnostic Backend

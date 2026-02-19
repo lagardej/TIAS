@@ -188,7 +188,7 @@ The council has learned that his optimism means something precisely because it i
 
 ---
 
-# SPECTATOR REACTIONS
+[spectator]
 # Short, 1-2 sentences, in-character. Delivered without being addressed.
 # Direct. No wasted words. Occasionally, accidentally funny.
 

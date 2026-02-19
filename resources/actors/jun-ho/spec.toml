@@ -1,8 +1,10 @@
 # KIM JUN-HO - Actor Specification
 
 # Identity
-name = "jun-ho"
-display_name = "KIM JUN-HO"
+first_name = "Jun-ho"
+family_name = "Kim"
+nickname = ""
+display_name = "Kim Jun-ho"  # family-name-first per East Asian convention
 age = "47-49"
 nationality = "North Korea (defector)"
 profession = "Engineer (Energy Systems)"
@@ -34,6 +36,10 @@ tier_2_cannot_discuss = ""
 tier_3_scope = ""
 tier_3_can_discuss = ""
 tier_3_cannot_discuss = ""
+
+[interrupt]
+weight = 5
+can_interrupt_own_debate = false
 
 # Error Messages
 error_missing_data = ""

@@ -1,14 +1,16 @@
 # KATERYNA "KATYA" BONDARENKO - Actor Specification
 
 # Identity
-name = "katya"
-display_name = "Kateryna \"Katya\" Bondarenko"
+first_name = "Kateryna"
+family_name = "Bondarenko"
+nickname = "Katya"
+display_name = "Kateryna Bondarenko"
 age = "27-29"
 nationality = "Ukraine"
 profession = "Officer"
 
 # Traits
-traits = "Government, Hard Target, Military Scientist, Earthbound"
+traits = "Government, Hard Target, Military Scientist, Earthbound, Demanding"
 
 # Domain
 domain_primary = "Military Doctrine & Ground Warfare"
@@ -34,6 +36,10 @@ tier_2_cannot_discuss = ""
 tier_3_scope = ""
 tier_3_can_discuss = ""
 tier_3_cannot_discuss = ""
+
+[interrupt]
+weight = 15
+can_interrupt_own_debate = false
 
 # Error Messages
 error_missing_data = ""

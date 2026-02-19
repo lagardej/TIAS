@@ -1,0 +1,39 @@
+# TIER1-ONLY - Fixture actor for tier_check tests
+# Has only tier_1_scope filled — tier 2 and 3 are empty.
+
+first_name = "Fixture"
+family_name = "TierOne"
+nickname = "tier1"
+display_name = "Fixture TierOne"
+age = ""
+nationality = ""
+profession = "Test"
+
+domain_primary = "Test Domain"
+domain_secondary = ""
+domain_keywords = ""
+
+spectator_probability = 0.0
+spectator_constraint = ""
+spectator_style = ""
+
+tier_1_scope = "Test tier 1 scope"
+tier_1_can_discuss = "Test topics"
+tier_1_cannot_discuss = "Tier 2+ topics"
+
+tier_2_scope = ""
+tier_2_can_discuss = ""
+tier_2_cannot_discuss = ""
+
+tier_3_scope = ""
+tier_3_can_discuss = ""
+tier_3_cannot_discuss = ""
+
+[interrupt]
+weight = 0
+can_interrupt_own_debate = false
+
+error_missing_data = ""
+error_out_of_tier_1 = "This is above my tier 1 scope."
+error_out_of_tier_2 = ""
+error_domain_mismatch = ""

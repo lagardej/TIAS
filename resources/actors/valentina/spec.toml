@@ -1,14 +1,16 @@
 # VALENTINA MENDOZA - Actor Specification
 
 # Identity
-name = "valentina"
-display_name = "VALENTINA MENDOZA"
+first_name = "Valentina"
+family_name = "Mendoza"
+nickname = ""
+display_name = "Valentina Mendoza"
 age = "27-29"
 nationality = "Colombia"
 profession = "Journalist"
 
 # Traits
-traits = "Pariah, Conspiracy Theorist, Suspicious, Aware, Cynic"
+traits = "Pariah, Conspiracy Theorist, Suspicious, Awareness, Cynic"
 
 # Domain
 domain_primary = "Intelligence & Counter-Intelligence"
@@ -34,6 +36,10 @@ tier_2_cannot_discuss = ""
 tier_3_scope = ""
 tier_3_can_discuss = ""
 tier_3_cannot_discuss = ""
+
+[interrupt]
+weight = 0
+can_interrupt_own_debate = false
 
 # Error Messages
 error_missing_data = ""

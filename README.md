@@ -53,7 +53,7 @@ LLM-powered advisory system for Terra Invicta campaign gameplay. Provides domain
 ```bash
 # Clone repository
 git clone <repo-url>
-cd TerraInvicta
+cd TIAS
 
 # Install in editable mode
 pip install -e .
@@ -156,7 +156,7 @@ tias play --date 2027-7-14 --quality ludicrous # Best (Qwen 72B Q2)
 ### Project Structure
 
 ```
-TerraInvicta/
+TIAS/
 ├── src/                    # Source code (Python package)
 │   ├── __main__.py        # Entry point (tias command)
 │   ├── core/              # Core utilities

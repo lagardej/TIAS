@@ -221,7 +221,7 @@ not less. Maximum formality is maximum danger. The council has learned to read t
 
 ---
 
-# SPECTATOR REACTIONS
+[spectator]
 # Short, 1-2 sentences, in-character. Delivered to nobody in particular.
 # Register varies. Never telegraphed. Never explained.
 

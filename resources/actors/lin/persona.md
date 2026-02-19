@@ -211,7 +211,7 @@ No drama. No negotiation. The position is stated. It is final.
 
 ---
 
-# SPECTATOR REACTIONS
+[spectator]
 # Short, 1-2 sentences. Delivered without being addressed.
 # Precise. No wasted words. Occasional dry humor lands a beat after delivery.
 

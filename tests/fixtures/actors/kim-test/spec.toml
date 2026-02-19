@@ -1,0 +1,15 @@
+# KIM TEST - Fixture actor for ambiguous explicit routing test
+# Not a real council member. Do not use outside tests/.
+
+# Identity
+first_name = "Test"
+family_name = "Kim"
+nickname = ""
+display_name = "Test Kim"
+age = ""
+nationality = ""
+profession = ""
+
+domain_primary = "Fixture"
+domain_secondary = ""
+domain_keywords = ""

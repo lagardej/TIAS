@@ -17,7 +17,7 @@
 ```bash
 # Clone and install
 git clone <repo-url>
-cd TerraInvicta
+cd TIAS
 pip install -e .
 
 # Setup
@@ -35,7 +35,7 @@ tias play --date 2027-7-14
 ## Project Structure
 
 ```
-TerraInvicta/
+TIAS/
 ├── src/                    # Source code (Python package)
 │   ├── __main__.py        # Entry point (tias command)
 │   ├── core/              # Core utilities

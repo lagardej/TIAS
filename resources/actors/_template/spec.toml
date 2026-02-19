@@ -2,8 +2,10 @@
 # Copy this directory to resources/actors/<actor_name>/ and fill in values
 
 # Identity
-name = "template"
-display_name = "Full Name Here"
+first_name = "First"
+family_name = "Family"
+nickname = ""  # Optional: callsign, alias, or common name
+display_name = "Full Name Here"  # Controls display order (e.g. East Asian family-name-first)
 age = "XX-YY"
 nationality = "Country"
 profession = "Profession"
@@ -17,8 +19,8 @@ domain_secondary = ""  # Optional
 domain_keywords = "keyword1, keyword2, keyword3"
 
 # Spectator Behavior
-spectator_probability = 0.15  # 0.0-1.0 (Wale: 0.50, Valentina: 0.30, others: 0.15-0.20)
-spectator_constraint = ""  # Optional: "not_consecutive" for Wale
+spectator_probability = 0.15  # 0.0-1.0
+spectator_constraint = ""  # Optional: "not_consecutive"
 spectator_style = "Brief description of reaction style"
 
 # Tier 1 - Early Consolidation
@@ -50,9 +52,17 @@ Multiple paragraphs are fine.
 Include personality, motivations, conflicts, relationships.
 """
 
+# Debate Interrupt
+# Weight: relative probability of this actor interrupting a stalled debate to force a decision
+# can_interrupt_own_debate: if true, actor can interrupt even when they are one of the debaters
+[interrupt]
+weight = 15
+can_interrupt_own_debate = false
+
 # Notes for implementation
 # - Fill all required fields
 # - Remove optional fields if not needed
 # - Ensure spectator_probability is float between 0.0 and 1.0
 # - Keywords should be lowercase, underscore-separated
 # - Background should be rich enough for personality prompts
+# - interrupt.weight is relative (not a percentage) — loader normalises across all actors
