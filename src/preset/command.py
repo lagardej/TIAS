@@ -1,7 +1,7 @@
 """
 Preset command - Extract game state into domain-specific context files
 
-Writes four focused files to generated/{iso_date}/:
+Writes four focused files to campaigns/{faction}/{iso_date}/:
   gamestate_earth.txt    - nations, CPs, climate, nuclear, faction resources (with history deltas)
   gamestate_space.txt    - habs, stations, fleets, launch windows
   gamestate_intel.txt    - known enemy councilors, faction intel, our councilors
@@ -82,13 +82,14 @@ def cmd_preset(args):
     project_root = get_project_root()
 
     game_date, iso_date = parse_flexible_date(args.date)
+    faction = args.faction
 
     templates_db   = project_root / "build" / "game_templates.db"
     savegame_db    = project_root / "build" / f"savegame_{iso_date}.db"
     templates_file = project_root / "build" / "templates" / "TISpaceBodyTemplate.json"
-    
-    # Output directory: generated/{iso_date}/
-    output_dir = project_root / "generated" / iso_date
+
+    # Output directory: campaigns/{faction}/{iso_date}/
+    output_dir = project_root / "campaigns" / faction / iso_date
     output_dir.mkdir(parents=True, exist_ok=True)
 
     if not templates_db.exists():

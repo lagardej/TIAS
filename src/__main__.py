@@ -43,6 +43,7 @@ def main():
     subparsers.add_parser('validate', help='Validate configuration and paths')
     subparsers.add_parser('perf',     help='Display performance statistics')
     stage_parser = subparsers.add_parser('stage', help='Parse savegame, evaluate tier, assemble actor context files')
+    stage_parser.add_argument('--faction', required=True, help='Faction slug (e.g. resist, exodus, academy)')
     stage_parser.add_argument('--date', required=True, help='Date (YYYY-M-D or YYYY-MM-DD or DD/MM/YYYY)')
     stage_parser.add_argument('--force', action='store_true', help='Re-parse savegame even if DB is current')
 
@@ -50,9 +51,11 @@ def main():
     parse_parser.add_argument('--date', required=True, help='Date (YYYY-M-D or YYYY-MM-DD or DD/MM/YYYY)')
 
     preset_parser = subparsers.add_parser('preset', help='Combine actor contexts and game state into LLM context')
+    preset_parser.add_argument('--faction', required=True, help='Faction slug (e.g. resist, exodus, academy)')
     preset_parser.add_argument('--date', required=True, help='Date (YYYY-M-D or YYYY-MM-DD or DD/MM/YYYY)')
 
     play_parser = subparsers.add_parser('play', help='Launch KoboldCpp')
+    play_parser.add_argument('--faction', required=True, help='Faction slug (e.g. resist, exodus, academy)')
     play_parser.add_argument('--date', required=True, help='Date (YYYY-M-D or YYYY-MM-DD or DD/MM/YYYY)')
     play_parser.add_argument('--quality', choices=['base', 'max', 'nuclear', 'ridiculous', 'ludicrous'],
                              help='Model quality tier (default: base or KOBOLDCPP_QUALITY from .env)')

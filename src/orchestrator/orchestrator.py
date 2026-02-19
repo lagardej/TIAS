@@ -39,20 +39,22 @@ from src.orchestrator.validate_action import validate_action
 class OrchestratorState:
     """Holds mutable session state. One instance per play session."""
 
-    def __init__(self, date: str, tier: int):
+    def __init__(self, date: str, faction: str, tier: int):
         root = get_project_root()
         self.date         = date
+        self.faction      = faction
         self.tier         = tier
         self.session_id   = make_session_id()
         self.history: list[HistoryTurn] = []
         self.debate_turn  = 0
 
-        self.actors_dir   = root / "resources" / "actors"
-        self.system_path  = root / "resources" / "prompts" / "system.txt"
-        self.generated_dir = root / "generated" / date
-        self.codex_spec   = root / "resources" / "actors" / "codex" / "spec.toml"
-        self.logs_dir     = root / "logs"
-        self.decision_log = root / "campaigns" / f"decision_log_{date}.json"
+        self.actors_dir    = root / "resources" / "actors"
+        self.system_path   = root / "resources" / "prompts" / "system.txt"
+        self.campaign_dir  = root / "campaigns" / faction
+        self.campaigns_dir = root / "campaigns" / faction / date
+        self.codex_spec    = root / "resources" / "actors" / "codex" / "spec.toml"
+        self.logs_dir      = root / "logs"
+        self.decision_log  = root / "campaigns" / faction / f"decision_log_{date}.json"
 
         self.specs: list[ActorSpec] = load_actor_specs(self.actors_dir)
 
@@ -154,7 +156,7 @@ def turn(query: str, state: OrchestratorState) -> str:
                 )
                 interrupt_prompt = prompt_assemble(
                     [interrupt_fetch], query,
-                    state.system_path, state.generated_dir, state.codex_spec,
+                    state.system_path, state.campaigns_dir, state.codex_spec,
                     history=state.history, tier=state.tier,
                 )
                 interrupt_llm = llm_call(interrupt_prompt, "debate_interrupt")
@@ -177,7 +179,7 @@ def turn(query: str, state: OrchestratorState) -> str:
     # --- prompt_assemble ---
     prompt = prompt_assemble(
         fetches, query,
-        state.system_path, state.generated_dir, state.codex_spec,
+        state.system_path, state.campaigns_dir, state.codex_spec,
         history=state.history, tier=state.tier,
     )
 

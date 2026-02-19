@@ -1,5 +1,4 @@
 COMMIT_MSG*
-/campaigns/
 
 # Python
 __pycache__/
@@ -9,7 +8,6 @@ __pycache__/
 .Python
 *.egg-info/
 dist/
-/build/
 *.egg
 
 # Environment
@@ -19,12 +17,10 @@ env/
 venv/
 
 # Build artifacts
-build/
-generated/
+/build/
 
-# Game data JSON (large, generated)
-build/**/*.json
-generated/**/*.json
+# Default campaign directory
+/campaigns/
 
 # Don't ignore project metadata
 # .ai/cache/ is intentionally tracked

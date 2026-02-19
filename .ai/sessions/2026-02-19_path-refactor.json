@@ -1,0 +1,19 @@
+{
+  "session_id": "2026-02-19_path-refactor",
+  "date": "2026-02-19",
+  "type": "refactor",
+  "status": "complete",
+  "summary": "generated/ renamed to campaigns/, --faction param added to stage/preset/play, multi-campaign path structure established.",
+  "completed": [
+    "campaigns/{faction}/{date}/ replaces generated/{date}/",
+    "campaign.db path: campaigns/{faction}/campaign.db",
+    "--faction required param added to stage, preset, play in __main__.py",
+    "OrchestratorState gains faction param and campaign_dir path",
+    "play/command.py tier_state path updated",
+    ".gitignore: generated/ removed, campaigns/**/*.json added",
+    ".env: GENERATED_DIR -> CAMPAIGN_DIR",
+    "instructions.md updated",
+    "Verified: tias stage --faction resist --date 2027-8-1 produces campaigns/resist/2027-08-01/"
+  ],
+  "next_session": "SQLite schema design — savegame.db gamestate tables + campaign.db"
+}

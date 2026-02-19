@@ -21,7 +21,7 @@ from src.orchestrator.prompt_assemble import (
 
 ACTORS_DIR    = Path("resources/actors")
 SYSTEM_PATH   = Path("resources/prompts/system.txt")
-GENERATED_DIR = Path("generated/2027-08-01")
+CAMPAIGNS_DIR = Path("campaigns/resist/2027-08-01")
 CODEX_SPEC    = Path("resources/actors/codex/spec.toml")
 
 
@@ -50,7 +50,7 @@ class TestSystemBlock:
     def test_tier_substituted(self, specs):
         result = prompt_assemble(
             [_fetch(specs, "Wale")], "test query",
-            SYSTEM_PATH, GENERATED_DIR, CODEX_SPEC, tier=2
+            SYSTEM_PATH, CAMPAIGNS_DIR, CODEX_SPEC, tier=2
         )
         assert "{tier}" not in result.system
         assert "2" in result.system
@@ -83,13 +83,13 @@ class TestActorSection:
     def test_actor_context_present(self, specs):
         result = prompt_assemble(
             [_fetch(specs, "Wale")], "test",
-            SYSTEM_PATH, GENERATED_DIR, CODEX_SPEC
+            SYSTEM_PATH, CAMPAIGNS_DIR, CODEX_SPEC
         )
         assert "ADVISOR CONTEXT" in result.user
 
     def test_two_actors_both_present(self, specs):
         fetches = [_fetch(specs, "Wale"), _fetch(specs, "Jonny")]
-        result = prompt_assemble(fetches, "test", SYSTEM_PATH, GENERATED_DIR, CODEX_SPEC)
+        result = prompt_assemble(fetches, "test", SYSTEM_PATH, CAMPAIGNS_DIR, CODEX_SPEC)
         assert "Wale" in result.user
         assert "Jonathan" in result.user
 
@@ -103,13 +103,13 @@ class TestGameState:
     def test_gamestate_under_budget_included(self, specs):
         result = prompt_assemble(
             [_fetch(specs, "Wale")], "test",
-            SYSTEM_PATH, GENERATED_DIR, CODEX_SPEC
+            SYSTEM_PATH, CAMPAIGNS_DIR, CODEX_SPEC
         )
         assert "GAME STATE" in result.user
 
     def test_gamestate_over_budget_returns_stage_direction(self, specs, tmp_path):
         # Write a gamestate file exceeding 40 lines
-        gen_dir = tmp_path / "generated"
+        gen_dir = tmp_path / "campaigns"
         gen_dir.mkdir()
         fat_report = "\n".join([f"Line {i}: data" for i in range(60)])
         (gen_dir / "gamestate_earth.txt").write_text(fat_report)
@@ -139,7 +139,7 @@ class TestHistory:
     def test_no_history_first_turn(self, specs):
         result = prompt_assemble(
             [_fetch(specs, "Wale")], "test",
-            SYSTEM_PATH, GENERATED_DIR, CODEX_SPEC, history=[]
+            SYSTEM_PATH, CAMPAIGNS_DIR, CODEX_SPEC, history=[]
         )
         assert "RECENT HISTORY" not in result.user
 
@@ -150,7 +150,7 @@ class TestHistory:
         ]
         result = prompt_assemble(
             [_fetch(specs, "Wale")], "second question",
-            SYSTEM_PATH, GENERATED_DIR, CODEX_SPEC, history=history
+            SYSTEM_PATH, CAMPAIGNS_DIR, CODEX_SPEC, history=history
         )
         assert "RECENT HISTORY" in result.user
         assert "First question" in result.user
@@ -163,7 +163,7 @@ class TestHistory:
         fetches = [_fetch(specs, "Wale"), _fetch(specs, "Jonny")]
         result = prompt_assemble(
             fetches, "next question",
-            SYSTEM_PATH, GENERATED_DIR, CODEX_SPEC, history=history
+            SYSTEM_PATH, CAMPAIGNS_DIR, CODEX_SPEC, history=history
         )
         assert "Wale Oluwaseun".upper() in result.user
         assert "Jonathan Pratt".upper() in result.user
@@ -178,13 +178,13 @@ class TestQueryPosition:
     def test_query_present(self, specs):
         result = prompt_assemble(
             [_fetch(specs, "Wale")], "my specific query",
-            SYSTEM_PATH, GENERATED_DIR, CODEX_SPEC
+            SYSTEM_PATH, CAMPAIGNS_DIR, CODEX_SPEC
         )
         assert "my specific query" in result.user
 
     def test_query_is_last_section(self, specs):
         result = prompt_assemble(
             [_fetch(specs, "Wale")], "my specific query",
-            SYSTEM_PATH, GENERATED_DIR, CODEX_SPEC
+            SYSTEM_PATH, CAMPAIGNS_DIR, CODEX_SPEC
         )
         assert result.user.endswith("my specific query")

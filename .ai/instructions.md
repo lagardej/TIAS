@@ -35,7 +35,8 @@
 ### File Organization
 - Resources (human-editable): `resources/`
 - Build artifacts: `build/` (gitignored)
-- Runtime data: `generated/` (gitignored)
+- Runtime data: `campaigns/{faction}/{date}/` (gitignored)
+- Campaign DB: `campaigns/{faction}/campaign.db` (dialogue_fts, decision_log)
 - Configuration: `.env` at root (from `.env.dist`)
 - Session history: `.ai/sessions/`
 

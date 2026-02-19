@@ -47,6 +47,7 @@ def cmd_play(args):
     project_root = get_project_root()
 
     _, iso_date = parse_flexible_date(args.date)
+    faction = args.faction
 
     quality    = args.quality if hasattr(args, 'quality') and args.quality else env.get('KOBOLDCPP_QUALITY', 'base')
     model_path = env.get(f'KOBOLDCPP_MODEL_{quality.upper()}')
@@ -98,16 +99,16 @@ def cmd_play(args):
     print(" ready.\n")
 
     # Phase 3: initialise orchestrator state
-    tier_state_path = project_root / "generated" / iso_date / "tier_state.json"
+    tier_state_path = project_root / "campaigns" / faction / iso_date / "tier_state.json"
     tier = 1
     if tier_state_path.exists():
         import json
         tier = json.loads(tier_state_path.read_text(encoding="utf-8")).get("current_tier", 1)
-    state = OrchestratorState(date=iso_date, tier=tier)
+    state = OrchestratorState(date=iso_date, faction=faction, tier=tier)
 
     print("=" * 60)
     print("TIAS — Terra Invicta Advisory System")
-    print(f"Tier {tier} | {iso_date} | {Path(model_path).name}")
+    print(f"[{faction}] Tier {tier} | {iso_date} | {Path(model_path).name}")
     print("Type 'quit' or Ctrl+C to exit.")
     print("=" * 60)
     print()

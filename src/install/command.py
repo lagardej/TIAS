@@ -147,7 +147,7 @@ def cmd_install(args):
         f.write("# Paths\n")
         f.write("RESOURCES_DIR=./resources\n")
         f.write("BUILD_DIR=./build\n")
-        f.write("GENERATED_DIR=./generated\n")
+        f.write("CAMPAIGNS_DIR=./campaigns\n")
         f.write("LOGS_DIR=./logs\n")
         f.write("\n")
 

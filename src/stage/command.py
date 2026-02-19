@@ -5,7 +5,7 @@ The core domain logic command. Three phases in sequence:
 
   1. PARSE   - load savegame DB (skipped if DB is current)
   2. EVALUATE - calculate tier readiness from game state, write tier_state.json
-  3. ASSEMBLE - combine resources/ + tier → generated/{iso_date}/context_*.txt
+  3. ASSEMBLE - combine resources/ + tier → campaigns/{faction}/{iso_date}/context_*.txt
 
 Usage:
   tias stage --date 2027-8-1
@@ -120,10 +120,10 @@ def _build_hab_body_map(db_path: Path) -> dict:
     return hab_body
 
 
-def evaluate_tier(db_path: Path, generated_dir: Path) -> dict:
+def evaluate_tier(db_path: Path, campaigns_dir: Path) -> dict:
     """
     Evaluate tier readiness from savegame DB.
-    Writes tier_state.json to generated_dir.
+    Writes tier_state.json to campaigns_dir.
     Returns the state dict.
     """
     faction_key, pf = _find_player_faction(db_path)
@@ -312,7 +312,7 @@ def evaluate_tier(db_path: Path, generated_dir: Path) -> dict:
         'stubs': ['earth_shipyard', 'orbital_ring', 'mission_success'],
     }
 
-    out = generated_dir / 'tier_state.json'
+    out = campaigns_dir / 'tier_state.json'
     with open(out, 'w', encoding='utf-8') as f:
         json.dump(state, f, indent=2)
 
@@ -440,18 +440,18 @@ def assemble_codex_context(prompts_dir: Path) -> str:
     return codex_file.read_text(encoding='utf-8').strip()
 
 
-def assemble_contexts(resources_dir: Path, generated_dir: Path, tier: int):
+def assemble_contexts(resources_dir: Path, campaigns_dir: Path, tier: int):
     """Assemble all context files at the given tier."""
     prompts_dir = resources_dir / "prompts"
 
     system_ctx = assemble_system_context(prompts_dir, tier)
     if system_ctx:
-        (generated_dir / "context_system.txt").write_text(system_ctx, encoding='utf-8')
+        (campaigns_dir / "context_system.txt").write_text(system_ctx, encoding='utf-8')
         logging.info("  -> context_system.txt")
 
     codex_ctx = assemble_codex_context(prompts_dir)
     if codex_ctx:
-        (generated_dir / "context_codex.txt").write_text(codex_ctx, encoding='utf-8')
+        (campaigns_dir / "context_codex.txt").write_text(codex_ctx, encoding='utf-8')
         logging.info("  -> context_codex.txt")
 
     assembled, skipped = [], []
@@ -463,7 +463,7 @@ def assemble_contexts(resources_dir: Path, generated_dir: Path, tier: int):
             skipped.append(actor_dir.name)
             continue
         ctx = assemble_actor_context(actor, tier)
-        (generated_dir / f"context_{actor_dir.name}.txt").write_text(ctx, encoding='utf-8')
+        (campaigns_dir / f"context_{actor_dir.name}.txt").write_text(ctx, encoding='utf-8')
         assembled.append(actor_dir.name)
         logging.info(f"  -> context_{actor_dir.name}.txt")
 
@@ -484,10 +484,11 @@ def cmd_stage(args):
     resources_dir = project_root / "resources"
     
     game_date, iso_date = parse_flexible_date(args.date)
+    faction = args.faction
     force = getattr(args, 'force', False)
 
-    # Output directory: generated/{iso_date}/
-    output_dir = project_root / "generated" / iso_date
+    # Output directory: campaigns/{faction}/{iso_date}/
+    output_dir = project_root / "campaigns" / faction / iso_date
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Phase 1: Parse

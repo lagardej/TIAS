@@ -70,18 +70,18 @@ def load_system_prompt(system_path: Path) -> str:
 # CODEX report handling
 # ---------------------------------------------------------------------------
 
-def _load_gamestate(generated_dir: Path) -> str:
+def _load_gamestate(campaigns_dir: Path) -> str:
     """
-    Concatenate all gamestate_*.txt files from the generated directory.
+    Concatenate all gamestate_*.txt files from the campaigns directory.
     Returns empty string if none found.
     """
-    files = sorted(generated_dir.glob("gamestate_*.txt"))
+    files = sorted(campaigns_dir.glob("gamestate_*.txt"))
     parts = [f.read_text(encoding="utf-8").strip() for f in files if f.stat().st_size > 0]
     return "\n\n".join(parts)
 
 
 def _codex_report_or_stage_direction(
-    generated_dir: Path,
+    campaigns_dir: Path,
     codex_spec_path: Path,
 ) -> str:
     """
@@ -96,7 +96,7 @@ def _codex_report_or_stage_direction(
 
     line_budget: int = codex_data.get("report_line_budget", 40)
     logging.debug(f"CODEX spec path: {codex_spec_path} | line_budget: {line_budget}")
-    report = _load_gamestate(generated_dir)
+    report = _load_gamestate(campaigns_dir)
 
     if not report:
         return "[No game state data available. CODEX is silent.]"
@@ -140,7 +140,7 @@ def prompt_assemble(
     fetch_results: list[FetchResult],
     query: str,
     system_path: Path,
-    generated_dir: Path,
+    campaigns_dir: Path,
     codex_spec_path: Path,
     history: list[HistoryTurn] | None = None,
     tier: int = 1,
@@ -152,7 +152,7 @@ def prompt_assemble(
         fetch_results:    One FetchResult per active actor (1 or 2).
         query:            Raw user input.
         system_path:      Path to resources/prompts/system.txt.
-        generated_dir:    Path to generated/{date}/ for gamestate files.
+        campaigns_dir:    Path to campaigns/{faction}/{date}/ for gamestate files.
         codex_spec_path:  Path to resources/actors/codex/spec.toml.
         history:          Recent dialogue turns (soft/hard capped upstream).
         tier:             Current campaign tier (injected into system prompt).
@@ -171,7 +171,7 @@ def prompt_assemble(
     is_codex_query = any(
         fr.actor.first_name.lower() == "codex" for fr in fetch_results
     )
-    context_section = _codex_report_or_stage_direction(generated_dir, codex_spec_path) if is_codex_query else ""
+    context_section = _codex_report_or_stage_direction(campaigns_dir, codex_spec_path) if is_codex_query else ""
 
     # History
     history_section = _format_history(history or [])
