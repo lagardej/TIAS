@@ -23,12 +23,13 @@ def setup_logging(verbosity: int):
     log_dir.mkdir(exist_ok=True)
     log_file = log_dir / "terractl.log"
 
+    import sys
     logging.basicConfig(
         level=level,
         format='%(asctime)s - %(levelname)s - %(message)s',
         handlers=[
-            logging.FileHandler(log_file, mode='a'),
-            logging.StreamHandler()
+            logging.FileHandler(log_file, mode='a', encoding='utf-8'),
+            logging.StreamHandler(stream=open(sys.stdout.fileno(), mode='w', encoding='utf-8', closefd=False))
         ]
     )
 

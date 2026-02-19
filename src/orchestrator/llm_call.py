@@ -22,6 +22,7 @@ from src.orchestrator.prompt_assemble import AssembledPrompt
 
 LLM_CONFIGS: dict[str, dict] = {
     "standard":          {"max_tokens": 150, "temperature": 0.7},
+    "codex":             {"max_tokens": 400, "temperature": 0.2},
     "debate_turn":       {"max_tokens": 150, "temperature": 0.8},
     "debate_interrupt":  {"max_tokens":  75, "temperature": 0.5},
     "spectator":         {"max_tokens":  50, "temperature": 0.5},

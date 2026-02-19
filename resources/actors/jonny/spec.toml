@@ -37,12 +37,12 @@ tier_3_scope = "Strategic space control, offensive and defensive fleet doctrine,
 tier_3_can_discuss = "All orbital and space operations topics, offensive fleet doctrine, asteroid belt operations, full solar system logistics, strategic space denial, large-scale construction and hab networks, alien encounter protocols"
 tier_3_cannot_discuss = ""
 
-[interrupt]
-weight = 15
-can_interrupt_own_debate = false
-
 # Error Messages
 error_missing_data = "I need current orbital data to assess this properly."
 error_out_of_tier_1 = "Fleet doctrine is beyond where we operate right now. Let's focus on keeping what we have alive first."
 error_out_of_tier_2 = "Offensive space warfare at that scale — I haven't developed the doctrine for that yet."
 error_domain_mismatch = "Space operations are my domain. For this, you want Wale. Or Lin. Depending on how many people need to not die."
+
+[interrupt]
+weight = 15
+can_interrupt_own_debate = false

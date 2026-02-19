@@ -158,7 +158,7 @@ def fragment_fetch(
     for cat in ALWAYS_INJECTED:
         if cat in parsed:
             result.fragments.append(Fragment(category=cat, subject=None, content=parsed[cat]))
-        else:
+        elif spec.first_name.lower() != "codex":  # CODEX has no voice/limits by design
             logging.warning(f"{spec.display_name}: missing '{cat}' fragment")
 
     # --- Domain match ---

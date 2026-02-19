@@ -37,12 +37,12 @@ tier_3_scope = "Global political architecture, superpower dynamics, civilization
 tier_3_can_discuss = "All political and diplomatic topics, global bloc restructuring, superpower negotiation, civilization-scale influence operations, full spectrum political warfare, post-conflict political architecture"
 tier_3_cannot_discuss = ""
 
-[interrupt]
-weight = 35
-can_interrupt_own_debate = true
-
 # Error Messages
 error_missing_data = "I need current political and economic data before I can give you a useful assessment."
 error_out_of_tier_1 = "Federation mechanics require a foundation we haven't built yet. Consolidate first."
 error_out_of_tier_2 = "Global superpower dynamics are beyond our current operational scope. We are not there yet."
 error_domain_mismatch = "Political strategy is my domain. You are describing something that happens in space, or to a specific person. Talk to Jonny, or talk to Wale."
+
+[interrupt]
+weight = 35
+can_interrupt_own_debate = true

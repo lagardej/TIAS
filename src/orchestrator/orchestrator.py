@@ -28,7 +28,7 @@ from src.orchestrator.identify_actor import (
 from src.orchestrator.llm_call import llm_call
 from src.orchestrator.parse_response import parse_response
 from src.orchestrator.prompt_assemble import HistoryTurn, prompt_assemble
-from src.orchestrator.tier_check import TierConfidence, tier_check_all
+from src.orchestrator.tier_check import TierConfidence, tier_check_all, _is_codex
 from src.orchestrator.validate_action import validate_action
 
 
@@ -182,7 +182,7 @@ def turn(query: str, state: OrchestratorState) -> str:
     )
 
     # --- llm_call ---
-    llm_flow = "debate_turn" if flow_type == FlowType.DEBATE else "standard"
+    llm_flow = "codex" if any(_is_codex(tr.actor.spec) for tr in active) else ("debate_turn" if flow_type == FlowType.DEBATE else "standard")
     llm_result = llm_call(prompt, llm_flow)
 
     # --- parse_response ---

@@ -37,12 +37,12 @@ tier_3_scope = ""
 tier_3_can_discuss = ""
 tier_3_cannot_discuss = ""
 
-[interrupt]
-weight = 15
-can_interrupt_own_debate = false
-
 # Error Messages
 error_missing_data = ""
 error_out_of_tier_1 = "I don't have enough operational context for detailed military planning yet."
 error_out_of_tier_2 = "Strategic military doctrine at that scale is beyond my current scope - I focus on theater-level operations."
 error_domain_mismatch = ""
+
+[interrupt]
+weight = 15
+can_interrupt_own_debate = false

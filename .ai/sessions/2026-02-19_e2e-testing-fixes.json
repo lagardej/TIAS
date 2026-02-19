@@ -1,0 +1,30 @@
+{
+  "session_id": "2026-02-19_e2e-testing-fixes",
+  "date": "2026-02-19",
+  "type": "testing",
+  "status": "complete",
+  "summary": "First E2E run via tias play. CODEX reading real gamestate. Multiple bugs fixed.",
+  "completed": [
+    "CODEX voice/limits warnings suppressed (by design, not missing)",
+    "CODEX gamestate injected only when CODEX is active actor",
+    "CODEX llm_call config: max_tokens 400, temperature 0.2",
+    "report_line_budget TOML bug fixed (was under [interrupt] table, now root-level)",
+    "Same TOML bug fixed across all actor spec.toml files: error_* fields moved before [interrupt]",
+    "system.txt updated with [THOUGHT]/[CHAT]/[ACTION] block format instructions",
+    "Format reminder added to user turn (top + bottom sandwich)",
+    "Logging unicode fix: utf-8 on file handler and stdout stream handler",
+    "Debug logging added then removed after prompt inspection complete",
+    "CODEX confirmed reading real gamestate — no hallucination"
+  ],
+  "known_issues": [
+    "[THOUGHT]/[CHAT] tag compliance weak on Mistral 7b — fallback working correctly, model issue not code",
+    "CODEX output is prose narration not structured fields — will improve with SQLite",
+    "CODEX spec path debug log still fires at DEBUG level — remove before release"
+  ],
+  "will_improve_with_sqlite": [
+    "CODEX structured output (precise field queries vs 200-line text dump)",
+    "CODEX prose narration (structured context → cleaner output)",
+    "[ACTION] FETCH/UPDATE compliance (meaningful once DB exists)"
+  ],
+  "next_session": "SQLite schema design"
+}

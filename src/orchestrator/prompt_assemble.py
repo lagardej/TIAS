@@ -95,6 +95,7 @@ def _codex_report_or_stage_direction(
         codex_data = tomllib.load(f)
 
     line_budget: int = codex_data.get("report_line_budget", 40)
+    logging.debug(f"CODEX spec path: {codex_spec_path} | line_budget: {line_budget}")
     report = _load_gamestate(generated_dir)
 
     if not report:
@@ -166,14 +167,18 @@ def prompt_assemble(
         actor_blocks.append(fetch.assembled())
     actor_section = "\n\n---\n\n".join(actor_blocks)
 
-    # Context (CODEX gamestate)
-    context_section = _codex_report_or_stage_direction(generated_dir, codex_spec_path)
+    # Context (CODEX gamestate) — only injected when CODEX is active
+    is_codex_query = any(
+        fr.actor.first_name.lower() == "codex" for fr in fetch_results
+    )
+    context_section = _codex_report_or_stage_direction(generated_dir, codex_spec_path) if is_codex_query else ""
 
     # History
     history_section = _format_history(history or [])
 
     # Assemble user turn
     parts = []
+    parts.append("IMPORTANT: Your entire response must use ONLY these tags:\n[THOUGHT] your reasoning\n[CHAT] in-character response\nDo NOT write anything outside these tags.")
     if actor_section:
         parts.append(f"## ADVISOR CONTEXT\n\n{actor_section}")
     if context_section:
@@ -181,6 +186,7 @@ def prompt_assemble(
     if history_section:
         parts.append(f"## RECENT HISTORY\n\n{history_section}")
     parts.append(f"## QUERY\n\n{query}")
+    parts.append("Respond now using [THOUGHT] and [CHAT] tags only.")
 
     user_turn = "\n\n".join(parts)
 

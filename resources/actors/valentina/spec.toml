@@ -37,12 +37,12 @@ tier_3_scope = ""
 tier_3_can_discuss = ""
 tier_3_cannot_discuss = ""
 
-[interrupt]
-weight = 0
-can_interrupt_own_debate = false
-
 # Error Messages
 error_missing_data = ""
 error_out_of_tier_1 = "I don't have the infiltration experience to recommend offensive operations yet."
 error_out_of_tier_2 = "Strategic security architecture is beyond my current scope - I'm still learning systematic approaches."
 error_domain_mismatch = ""
+
+[interrupt]
+weight = 0
+can_interrupt_own_debate = false

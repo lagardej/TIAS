@@ -1,4 +1,5 @@
 COMMIT_MSG*
+/campaigns/
 
 # Python
 __pycache__/
