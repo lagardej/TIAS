@@ -498,6 +498,24 @@ def cmd_stage(args):
     state = evaluate_tier(db_path, output_dir)
     tier = state['current_tier']
 
+    # Phase 2b: Populate savegame.db
+    from src.db.populate import populate_savegame_db
+    from src.preset.command import (
+        _load_gs as preset_load_gs,
+        _player_faction, _faction_name_map, _nation_map, _hab_body_map
+    )
+    helpers = {
+        'load_gs':         preset_load_gs,
+        'player_faction':  _player_faction,
+        'faction_name_map': _faction_name_map,
+        'nation_map':      _nation_map,
+        'hab_body_map':    _hab_body_map,
+    }
+    savegame_db = output_dir / "savegame.db"
+    templates_file = project_root / 'build' / 'templates' / 'TISpaceBodyTemplate.json'
+    populate_savegame_db(db_path, savegame_db, faction, iso_date, helpers,
+                         game_date=game_date, templates_file=templates_file)
+
     # Phase 3: Assemble
     assembled = assemble_contexts(resources_dir, output_dir, tier)
 

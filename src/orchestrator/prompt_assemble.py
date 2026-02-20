@@ -72,9 +72,13 @@ def load_system_prompt(system_path: Path) -> str:
 
 def _load_gamestate(campaigns_dir: Path) -> str:
     """
-    Concatenate all gamestate_*.txt files from the campaigns directory.
-    Returns empty string if none found.
+    Load gamestate from savegame.db if present, else fall back to gamestate_*.txt files.
     """
+    db_path = campaigns_dir / "savegame.db"
+    if db_path.exists():
+        from src.db.query import build_codex_report
+        return build_codex_report(db_path)
+    # Legacy fallback
     files = sorted(campaigns_dir.glob("gamestate_*.txt"))
     parts = [f.read_text(encoding="utf-8").strip() for f in files if f.stat().st_size > 0]
     return "\n\n".join(parts)
