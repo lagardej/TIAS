@@ -35,7 +35,10 @@
 ### File Organization
 - Resources (human-editable): `resources/`
 - Build artifacts: `build/` (gitignored)
-- Runtime data: `campaigns/{faction}/{date}/` (gitignored)
+- Runtime data: `campaigns/{faction}/` (gitignored, flat — no date subdir)
+  - `savegame_{date}.db` — gamestate snapshot per date
+  - `tier_state_{date}.json` — tier evaluation per date
+  - `context_*.txt` — always current, overwritten on each stage run
 - Campaign DB: `campaigns/{faction}/campaign.db` (dialogue_fts, decision_log)
 - Configuration: `.env` at root (from `.env.dist`)
 - Session history: `.ai/sessions/`

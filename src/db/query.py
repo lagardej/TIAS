@@ -237,16 +237,18 @@ def _section_research(conn) -> list[str]:
 
 def _section_habs(conn) -> list[str]:
     rows = conn.execute("""
-        SELECT parent_body_name, name, hab_type, tier, faction_name, is_player
-        FROM gs_habs
-        ORDER BY parent_body_name, name
+        SELECT COALESCE(sb.name, h.parent_body_name, '?') AS body,
+               h.name, h.hab_type, h.tier, h.faction_name, h.is_player
+        FROM gs_habs h
+        LEFT JOIN gs_space_bodies sb ON sb.body_key = h.parent_body_key
+        ORDER BY body, h.name
     """).fetchall()
     if not rows:
         return []
 
     by_body: dict[str, list] = {}
     for r in rows:
-        body = r['parent_body_name'] or '?'
+        body = r['body'] or '?'
         by_body.setdefault(body, []).append(r)
 
     lines = ["## Habs & Stations"]
@@ -266,9 +268,9 @@ def _section_habs(conn) -> list[str]:
 
 def _section_fleets(conn) -> list[str]:
     rows = conn.execute("""
-        SELECT name, faction_name, location, is_player
-        FROM gs_fleets
-        ORDER BY name
+        SELECT f.name, f.faction_name, f.location, f.is_player
+        FROM gs_fleets f
+        ORDER BY f.name
     """).fetchall()
     if not rows:
         return []
@@ -285,16 +287,18 @@ def _section_fleets(conn) -> list[str]:
 
 
 def _section_launch_windows(conn) -> list[str]:
+    """Bodies with launch window data."""
     rows = conn.execute(
-        "SELECT destination, next_window_date, days_away, penalty_pct FROM gs_launch_windows"
+        "SELECT name, next_window_date, days_away, penalty_pct "
+        "FROM gs_space_bodies WHERE next_window_date IS NOT NULL ORDER BY days_away"
     ).fetchall()
     if not rows:
         return []
     lines = ["## Launch Windows"]
     for r in rows:
-        penalty = f", penalty {r['penalty_pct']}%" if r['penalty_pct'] else ""
+        penalty = f", penalty {r['penalty_pct']:.0f}%" if r['penalty_pct'] else ""
         lines.append(
-            f"  {r['destination']}: next window {r['next_window_date']} "
+            f"  {r['name']}: next window {r['next_window_date']} "
             f"({r['days_away']} days){penalty}"
         )
     lines.append("")

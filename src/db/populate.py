@@ -95,7 +95,7 @@ def _clear_snapshot(conn: sqlite3.Connection) -> None:
         "gs_federations", "gs_faction_resources",
         "gs_councilors_enemy", "gs_councilors_player", "gs_faction_intel",
         "gs_research_completed",
-        "gs_habs", "gs_fleets", "gs_launch_windows",
+        "gs_space_bodies", "gs_habs", "gs_fleets",
     ]
     for t in tables:
         conn.execute(f"DELETE FROM {t}")
@@ -401,46 +401,87 @@ def _populate_space(conn, raw_db, _load_gs, _player_faction,
                     player_faction_key, faction_names,
                     game_date=None, templates_file=None):
 
-    hab_body  = _hab_body_map(raw_db)  # outposts: hab_key → body name via habSite
+    bodies    = _load_gs(raw_db, 'PavonisInteractive.TerraInvicta.TISpaceBodyState')
     habs      = _load_gs(raw_db, 'PavonisInteractive.TerraInvicta.TIHabState')
     fleets    = _load_gs(raw_db, 'PavonisInteractive.TerraInvicta.TISpaceFleetState')
-    bodies    = _load_gs(raw_db, 'PavonisInteractive.TerraInvicta.TISpaceBodyState')
     body_name = {b['Key']['value']: b['Value'].get('displayName', '?') for b in bodies}
 
-    # Build orbit → (body_key, body_name) map for stations
+    # --- Launch windows (keyed by destination name for merge into gs_space_bodies) ---
+    windows: dict[str, dict] = {}
+    if game_date and templates_file:
+        from src.preset.launch_windows import calculate_launch_windows
+        windows = calculate_launch_windows(game_date, templates_file)
+
+    # --- Build objectType map from template file ---
+    object_type_map: dict[str, str] = {}  # templateName → objectType
+    if templates_file and templates_file.exists():
+        import json
+        with open(templates_file, encoding='utf-8') as f:
+            tmpl_data = json.load(f)
+        for t in tmpl_data:
+            dn = t.get('dataName') or t.get('friendlyName', '')
+            ot = t.get('objectType', '')
+            if dn and ot:
+                object_type_map[dn] = ot
+
+    # --- Space bodies (must be inserted before fleets due to FK) ---
+    for b in bodies:
+        v   = b['Value']
+        if not v.get('exists') or v.get('archived'):
+            continue
+        bk         = b['Key']['value']
+        name       = v.get('displayName', '?')
+        tmpl       = v.get('templateName', '')
+        obj_type   = object_type_map.get(tmpl, '')
+        barycenter = (v.get('barycenter') or {}).get('value')
+        max_tier   = v.get('maxHabTier', 0)
+        has_sites  = 1 if v.get('habSites') else 0
+        win        = windows.get(name, {})
+        conn.execute(
+            "INSERT OR REPLACE INTO gs_space_bodies "
+            "(body_key, name, object_type, barycenter_key, max_hab_tier, has_hab_sites, "
+            "next_window_date, days_away, penalty_pct) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (
+                bk, name, obj_type, barycenter, max_tier, has_sites,
+                win.get('next_window'),
+                win.get('days_away'),
+                win.get('current_penalty'),
+            )
+        )
+
+    # --- Build orbit/site lookup maps for hab body resolution ---
     orbits = _load_gs(raw_db, 'PavonisInteractive.TerraInvicta.TIOrbitState')
-    orbit_body: dict[int, tuple[int | None, str]] = {}
+    orbit_body: dict[int, int | None] = {}
     for o in orbits:
-        pb  = (o['Value'].get('parentBody') or {})
-        bk  = pb.get('value')
-        orbit_body[o['Key']['value']] = (bk, body_name.get(bk, '?') if bk else '?')
+        bk = (o['Value'].get('parentBody') or {}).get('value')
+        orbit_body[o['Key']['value']] = bk
 
-    # Build habSite → (body_key, body_name) for outposts
     sites     = _load_gs(raw_db, 'PavonisInteractive.TerraInvicta.TIHabSiteState')
-    site_body: dict[int, tuple[int | None, str]] = {}
+    site_body: dict[int, int | None] = {}
     for s in sites:
-        pb = (s['Value'].get('parentBody') or {})
-        bk = pb.get('value')
-        site_body[s['Key']['value']] = (bk, body_name.get(bk, '?') if bk else '?')
+        bk = (s['Value'].get('parentBody') or {}).get('value')
+        site_body[s['Key']['value']] = bk
 
-    # Habs
+    # --- Habs ---
     for h in habs:
         v = h['Value']
         if not v.get('exists') or v.get('archived'):
             continue
         hk        = h['Key']['value']
         fk        = (v.get('faction') or {}).get('value')
-        orbit_ref = (v.get('orbitState') or {}).get('value')
         site_ref  = (v.get('habSite') or {}).get('value')
+        orbit_ref = (v.get('orbitState') or {}).get('value')
         bary_ref  = (v.get('barycenter') or {}).get('value')
         if site_ref:
-            pbk, pbn = site_body.get(site_ref, (None, '?'))
+            pbk = site_body.get(site_ref)
         elif bary_ref:
-            pbk, pbn = bary_ref, body_name.get(bary_ref, '?')
+            pbk = bary_ref
         elif orbit_ref:
-            pbk, pbn = orbit_body.get(orbit_ref, (None, '?'))
+            pbk = orbit_body.get(orbit_ref)
         else:
-            pbk, pbn = None, '?'
+            pbk = None
+        pbn = body_name.get(pbk, '?') if pbk else '?'
         conn.execute(
             "INSERT OR REPLACE INTO gs_habs "
             "(hab_key, parent_body_key, parent_body_name, name, hab_type, tier, faction_key, faction_name, is_player) "
@@ -456,24 +497,7 @@ def _populate_space(conn, raw_db, _load_gs, _player_faction,
             )
         )
 
-    # Launch windows
-    if game_date and templates_file:
-        from src.preset.launch_windows import calculate_launch_windows
-        windows = calculate_launch_windows(game_date, templates_file)
-        for destination, data in windows.items():
-            conn.execute(
-                "INSERT OR REPLACE INTO gs_launch_windows "
-                "(destination, next_window_date, days_away, penalty_pct) "
-                "VALUES (?, ?, ?, ?)",
-                (
-                    destination,
-                    data.get('next_window'),
-                    data.get('days_away'),
-                    data.get('current_penalty', 0),
-                )
-            )
-
-    # Fleets
+    # --- Fleets ---
     for f in fleets:
         v = f['Value']
         if not v.get('exists') or v.get('archived') or v.get('dummyFleet'):
@@ -483,13 +507,14 @@ def _populate_space(conn, raw_db, _load_gs, _player_faction,
         location = f"orbiting {body_name.get(bk, str(bk))}" if bk else 'in transit'
         conn.execute(
             "INSERT OR REPLACE INTO gs_fleets "
-            "(fleet_key, name, faction_key, faction_name, location, is_player) "
-            "VALUES (?, ?, ?, ?, ?, ?)",
+            "(fleet_key, name, faction_key, faction_name, body_key, location, is_player) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?)",
             (
                 f['Key']['value'],
                 v.get('displayName', '?'),
                 fk,
                 faction_names.get(fk, '?') if fk else '?',
+                bk,
                 location,
                 1 if fk == player_faction_key else 0,
             )

@@ -50,8 +50,7 @@ class OrchestratorState:
 
         self.actors_dir    = root / "resources" / "actors"
         self.system_path   = root / "resources" / "prompts" / "system.txt"
-        self.campaign_dir  = root / "campaigns" / faction
-        self.campaigns_dir = root / "campaigns" / faction / date
+        self.campaign_dir  = root / "campaigns" / faction   # flat — no date subdir
         self.codex_spec    = root / "resources" / "actors" / "codex" / "spec.toml"
         self.logs_dir      = root / "logs"
         self.decision_log  = root / "campaigns" / faction / f"decision_log_{date}.json"
@@ -156,8 +155,8 @@ def turn(query: str, state: OrchestratorState) -> str:
                 )
                 interrupt_prompt = prompt_assemble(
                     [interrupt_fetch], query,
-                    state.system_path, state.campaigns_dir, state.codex_spec,
-                    history=state.history, tier=state.tier,
+                    state.system_path, state.campaign_dir, state.codex_spec,
+                    history=state.history, tier=state.tier, date=state.date,
                 )
                 interrupt_llm = llm_call(interrupt_prompt, "debate_interrupt")
                 interrupt_parsed = parse_response(interrupt_llm)
@@ -179,8 +178,8 @@ def turn(query: str, state: OrchestratorState) -> str:
     # --- prompt_assemble ---
     prompt = prompt_assemble(
         fetches, query,
-        state.system_path, state.campaigns_dir, state.codex_spec,
-        history=state.history, tier=state.tier,
+        state.system_path, state.campaign_dir, state.codex_spec,
+        history=state.history, tier=state.tier, date=state.date,
     )
 
     # --- llm_call ---

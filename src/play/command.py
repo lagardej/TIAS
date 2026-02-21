@@ -99,7 +99,7 @@ def cmd_play(args):
     print(" ready.\n")
 
     # Phase 3: initialise orchestrator state
-    tier_state_path = project_root / "campaigns" / faction / iso_date / "tier_state.json"
+    tier_state_path = project_root / "campaigns" / faction / f"tier_state_{iso_date}.json"
     tier = 1
     if tier_state_path.exists():
         import json

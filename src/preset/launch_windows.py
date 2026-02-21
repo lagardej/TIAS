@@ -64,7 +64,7 @@ def calculate_launch_windows(game_date: datetime, templates_file: Path) -> dict:
     next_sis_window = sisyphus_base_window + timedelta(days=next_cycle_sis * sisyphus_synodic)
     days_to_sis = (next_sis_window - game_date).days
 
-    results['Sisyphus'] = {
+    results['1866 Sisyphus'] = {
         'next_window': next_sis_window.strftime('%Y-%m-%d'),
         'days_away': days_to_sis
     }
@@ -76,7 +76,7 @@ def calculate_launch_windows(game_date: datetime, templates_file: Path) -> dict:
     next_heph_window = hephaistos_base_window + timedelta(days=next_cycle_heph * hephaistos_synodic)
     days_to_heph = (next_heph_window - game_date).days
 
-    results['Hephaistos'] = {
+    results['2212 Hephaistos'] = {
         'next_window': next_heph_window.strftime('%Y-%m-%d'),
         'days_away': days_to_heph
     }

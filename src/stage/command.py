@@ -120,7 +120,7 @@ def _build_hab_body_map(db_path: Path) -> dict:
     return hab_body
 
 
-def evaluate_tier(db_path: Path, campaigns_dir: Path) -> dict:
+def evaluate_tier(db_path: Path, campaigns_dir: Path, iso_date: str = '') -> dict:
     """
     Evaluate tier readiness from savegame DB.
     Writes tier_state.json to campaigns_dir.
@@ -312,7 +312,8 @@ def evaluate_tier(db_path: Path, campaigns_dir: Path) -> dict:
         'stubs': ['earth_shipyard', 'orbital_ring', 'mission_success'],
     }
 
-    out = campaigns_dir / 'tier_state.json'
+    filename = f'tier_state_{iso_date}.json' if iso_date else 'tier_state.json'
+    out = campaigns_dir / filename
     with open(out, 'w', encoding='utf-8') as f:
         json.dump(state, f, indent=2)
 
@@ -487,15 +488,15 @@ def cmd_stage(args):
     faction = args.faction
     force = getattr(args, 'force', False)
 
-    # Output directory: campaigns/{faction}/{iso_date}/
-    output_dir = project_root / "campaigns" / faction / iso_date
+    # Output directory: campaigns/{faction}/ (flat — no date subdirectory)
+    output_dir = project_root / "campaigns" / faction
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Phase 1: Parse
     db_path = _ensure_db(project_root, game_date, iso_date, force)
 
     # Phase 2: Evaluate
-    state = evaluate_tier(db_path, output_dir)
+    state = evaluate_tier(db_path, output_dir, iso_date)
     tier = state['current_tier']
 
     # Phase 2b: Populate savegame.db
@@ -511,7 +512,7 @@ def cmd_stage(args):
         'nation_map':      _nation_map,
         'hab_body_map':    _hab_body_map,
     }
-    savegame_db = output_dir / "savegame.db"
+    savegame_db = output_dir / f"savegame_{iso_date}.db"
     templates_file = project_root / 'build' / 'templates' / 'TISpaceBodyTemplate.json'
     populate_savegame_db(db_path, savegame_db, faction, iso_date, helpers,
                          game_date=game_date, templates_file=templates_file)

@@ -143,21 +143,31 @@ CREATE TABLE IF NOT EXISTS gs_habs (
 CREATE INDEX IF NOT EXISTS idx_habs_body ON gs_habs(parent_body_key);
 CREATE INDEX IF NOT EXISTS idx_habs_faction ON gs_habs(faction_key);
 
+CREATE TABLE IF NOT EXISTS gs_space_bodies (
+    body_key            INTEGER PRIMARY KEY,
+    name                TEXT NOT NULL,
+    object_type         TEXT,           -- Star, Planet, Moon, Asteroid, DwarfPlanet, etc.
+    barycenter_key      INTEGER,        -- parent body key (null for Sol)
+    max_hab_tier        INTEGER,
+    has_hab_sites       INTEGER NOT NULL DEFAULT 0,  -- 1 if habSites non-empty
+    next_window_date    TEXT,           -- null if no launch window data
+    days_away           INTEGER,
+    penalty_pct         REAL
+);
+CREATE INDEX IF NOT EXISTS idx_bodies_barycenter ON gs_space_bodies(barycenter_key);
+CREATE INDEX IF NOT EXISTS idx_bodies_type ON gs_space_bodies(object_type);
+
 CREATE TABLE IF NOT EXISTS gs_fleets (
     fleet_key           INTEGER PRIMARY KEY,
     name                TEXT NOT NULL,
     faction_key         INTEGER,
     faction_name        TEXT,
-    location            TEXT,
-    is_player           INTEGER NOT NULL DEFAULT 0
+    body_key            INTEGER,        -- barycenter body key
+    location            TEXT,           -- human-readable e.g. 'orbiting Sol'
+    is_player           INTEGER NOT NULL DEFAULT 0,
+    FOREIGN KEY (body_key) REFERENCES gs_space_bodies(body_key)
 );
-
-CREATE TABLE IF NOT EXISTS gs_launch_windows (
-    destination         TEXT PRIMARY KEY,
-    next_window_date    TEXT,
-    days_away           INTEGER,
-    penalty_pct         INTEGER
-);
+CREATE INDEX IF NOT EXISTS idx_fleets_body ON gs_fleets(body_key);
 
 """
 
