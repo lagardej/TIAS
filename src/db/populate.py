@@ -29,6 +29,7 @@ def populate_savegame_db(
     helpers: dict,
     game_date=None,
     templates_file: Path = None,
+    templates_dir: Path = None,
 ) -> None:
     """
     Populate savegame.db from the raw parse DB.
@@ -41,6 +42,7 @@ def populate_savegame_db(
         helpers:         Shared helper functions from preset/command.py
         game_date:       datetime.date for launch window calculations
         templates_file:  Path to TISpaceBodyTemplate.json
+        templates_dir:   Path to build/templates/ directory (for module template lookup)
     """
     _load_gs         = helpers['load_gs']
     _player_faction  = helpers['player_faction']
@@ -73,7 +75,8 @@ def populate_savegame_db(
         _populate_space(conn, raw_db, _load_gs, _player_faction,
                         _faction_name_map, _hab_body_map,
                         player_faction_key, faction_names,
-                        game_date=game_date, templates_file=templates_file)
+                        game_date=game_date, templates_file=templates_file,
+                        templates_dir=templates_dir)
         conn.commit()
         logging.info(f"savegame.db populated: {output_db}")
 
@@ -95,7 +98,7 @@ def _clear_snapshot(conn: sqlite3.Connection) -> None:
         "gs_federations", "gs_faction_resources",
         "gs_councilors_enemy", "gs_councilors_player", "gs_faction_intel",
         "gs_research_completed",
-        "gs_space_bodies", "gs_habs", "gs_fleets",
+        "gs_space_bodies", "gs_hab_modules", "gs_habs", "gs_fleets",
     ]
     for t in tables:
         conn.execute(f"DELETE FROM {t}")
@@ -396,10 +399,101 @@ def _populate_research(conn, raw_db, _load_gs):
 # Space domain
 # ---------------------------------------------------------------------------
 
+def _populate_hab_modules(
+    conn: sqlite3.Connection,
+    raw_db: Path,
+    _load_gs,
+    templates_dir: Path | None,
+) -> None:
+    """
+    Populate gs_hab_modules from TIHabModuleState + TIHabModuleTemplate.
+
+    Requires gs_habs to already be populated (FK constraint).
+    Modules with empty templateName are skipped (vacant/placeholder slots).
+    """
+    # --- Load template data: {dataName: {tier, crew, power}} ---
+    module_template: dict[str, dict] = {}
+    if templates_dir is not None:
+        tmpl_path = templates_dir / 'TIHabModuleTemplate.json'
+        if tmpl_path.exists():
+            import json
+            with open(tmpl_path, encoding='utf-8') as f:
+                tmpl_list = json.load(f)
+            for t in tmpl_list:
+                dn = t.get('dataName', '')
+                if dn:
+                    module_template[dn] = {
+                        'tier':  t.get('tier', 0),
+                        'crew':  t.get('crew', 0),
+                        'power': t.get('power', 0),  # negative = consuming
+                    }
+
+    # --- Build sector_key → hab_key map from TISectorState ---
+    sectors = _load_gs(raw_db, 'PavonisInteractive.TerraInvicta.TISectorState')
+    sector_hab: dict[int, int] = {
+        s['Key']['value']: (s['Value'].get('hab') or {}).get('value')
+        for s in sectors
+        if (s['Value'].get('hab') or {}).get('value') is not None
+    }
+
+    # --- Load and insert module states ---
+    module_states = _load_gs(raw_db, 'PavonisInteractive.TerraInvicta.TIHabModuleState')
+    inserted = 0
+    for m in module_states:
+        v = m['Value']
+        if not v.get('exists') or v.get('archived'):
+            continue
+        tmpl_name = v.get('templateName', '')
+        if not tmpl_name:
+            continue  # vacant slot
+
+        mk = m['Key']['value']
+        sector_key = (v.get('sector') or {}).get('value')
+        hab_key = sector_hab.get(sector_key) if sector_key is not None else None
+        if hab_key is None:
+            logging.debug(f"gs_hab_modules: module {mk} ({tmpl_name}) has no resolvable hab — skipped")
+            continue
+
+        tmpl = module_template.get(tmpl_name, {})
+
+        # completionDate: ISO string, present for both completed and in-progress modules
+        raw_date = v.get('completionDate', '')
+        # Trim sub-second precision to plain ISO date string (YYYY-MM-DD)
+        completion_date: str | None = None
+        if raw_date and not raw_date.startswith('0001'):
+            completion_date = raw_date[:10]  # 'YYYY-MM-DD'
+
+        try:
+            conn.execute(
+                "INSERT OR REPLACE INTO gs_hab_modules "
+                "(module_key, hab_key, module_name, display_name, tier, crew, power, "
+                "construction_completed, completion_date, powered, destroyed) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (
+                    mk,
+                    hab_key,
+                    tmpl_name,
+                    v.get('displayName'),
+                    tmpl.get('tier'),
+                    tmpl.get('crew'),
+                    tmpl.get('power'),
+                    1 if v.get('constructionCompleted', True) else 0,
+                    completion_date,
+                    1 if v.get('powered', True) else 0,
+                    1 if v.get('destroyed', False) else 0,
+                )
+            )
+            inserted += 1
+        except sqlite3.IntegrityError as e:
+            logging.debug(f"gs_hab_modules: skipped module {mk} ({tmpl_name}): {e}")
+
+    logging.info(f"gs_hab_modules: inserted {inserted} modules")
+
+
 def _populate_space(conn, raw_db, _load_gs, _player_faction,
                     _faction_name_map, _hab_body_map,
                     player_faction_key, faction_names,
-                    game_date=None, templates_file=None):
+                    game_date=None, templates_file=None, templates_dir=None):
 
     bodies    = _load_gs(raw_db, 'PavonisInteractive.TerraInvicta.TISpaceBodyState')
     habs      = _load_gs(raw_db, 'PavonisInteractive.TerraInvicta.TIHabState')
@@ -496,6 +590,9 @@ def _populate_space(conn, raw_db, _load_gs, _player_faction,
                 1 if fk == player_faction_key else 0,
             )
         )
+
+    # --- Hab modules ---
+    _populate_hab_modules(conn, raw_db, _load_gs, templates_dir)
 
     # --- Fleets ---
     for f in fleets:

@@ -238,13 +238,25 @@ def _section_research(conn) -> list[str]:
 def _section_habs(conn) -> list[str]:
     rows = conn.execute("""
         SELECT COALESCE(sb.name, h.parent_body_name, '?') AS body,
-               h.name, h.hab_type, h.tier, h.faction_name, h.is_player
+               h.hab_key, h.name, h.hab_type, h.tier, h.faction_name, h.is_player
         FROM gs_habs h
         LEFT JOIN gs_space_bodies sb ON sb.body_key = h.parent_body_key
         ORDER BY body, h.name
     """).fetchall()
     if not rows:
         return []
+
+    # Module summary per hab: active, building, crew_total, power_balance
+    mod_rows = conn.execute("""
+        SELECT hab_key,
+               SUM(CASE WHEN construction_completed=1 AND destroyed=0 THEN 1 ELSE 0 END) AS active,
+               SUM(CASE WHEN construction_completed=0 THEN 1 ELSE 0 END) AS building,
+               SUM(CASE WHEN construction_completed=1 AND destroyed=0 THEN COALESCE(crew,0) ELSE 0 END) AS crew_total,
+               SUM(CASE WHEN construction_completed=1 AND destroyed=0 THEN COALESCE(power,0) ELSE 0 END) AS power_balance
+        FROM gs_hab_modules
+        GROUP BY hab_key
+    """).fetchall()
+    mod_map = {r['hab_key']: r for r in mod_rows}
 
     by_body: dict[str, list] = {}
     for r in rows:
@@ -254,13 +266,67 @@ def _section_habs(conn) -> list[str]:
     lines = ["## Habs & Stations"]
     for body in sorted(by_body.keys()):
         lines.append(f"\n### {body}")
-        lines.append(f"  {'Name':<30} {'Type':<10} {'Tier':<5} Faction")
-        lines.append("  " + "-" * 65)
+        lines.append(f"  {'Name':<30} {'Type':<10} {'Tier':<5} {'Mod':>4} {'Crew':>5} {'Pwr':>5}  Faction")
+        lines.append("  " + "-" * 78)
         for r in by_body[body]:
             mark = " *" if r['is_player'] else ""
+            m = mod_map.get(r['hab_key'])
+            mod_str  = f"{m['active']}/{m['active']+m['building']}" if m else "-"
+            crew_str = str(m['crew_total']) if m else "-"
+            pwr_str  = str(m['power_balance']) if m else "-"
             lines.append(
-                f"  {r['name']:<30} {r['hab_type']:<10} T{r['tier']}    "
+                f"  {r['name']:<30} {r['hab_type']:<10} T{r['tier']}  "
+                f"{mod_str:>4} {crew_str:>5} {pwr_str:>5}  "
                 f"{r['faction_name']}{mark}"
+            )
+    lines.append("")
+    return lines
+
+
+def _section_hab_modules(conn) -> list[str]:
+    """Detailed module listing for player habs only."""
+    habs = conn.execute("""
+        SELECT COALESCE(sb.name, h.parent_body_name, '?') AS body,
+               h.hab_key, h.name AS hab_name
+        FROM gs_habs h
+        LEFT JOIN gs_space_bodies sb ON sb.body_key = h.parent_body_key
+        WHERE h.is_player = 1
+        ORDER BY body, h.name
+    """).fetchall()
+    if not habs:
+        return []
+
+    lines = ["## Player Hab Modules"]
+    for hab in habs:
+        mods = conn.execute("""
+            SELECT module_name, display_name, tier, crew, power,
+                   construction_completed, completion_date, powered, destroyed
+            FROM gs_hab_modules
+            WHERE hab_key = ?
+            ORDER BY construction_completed DESC, tier DESC, module_name
+        """, (hab['hab_key'],)).fetchall()
+        if not mods:
+            continue
+
+        lines.append(f"\n### {hab['body']} — {hab['hab_name']}")
+        lines.append(f"  {'Module':<35} {'Tier':>4} {'Crew':>5} {'Pwr':>5}  Status")
+        lines.append("  " + "-" * 72)
+        for m in mods:
+            if m['destroyed']:
+                status = "DESTROYED"
+            elif not m['construction_completed']:
+                eta = m['completion_date'] or '?'
+                status = f"BUILDING (ETA {eta})"
+            elif not m['powered']:
+                status = "UNPOWERED"
+            else:
+                status = "active"
+            name = m['display_name'] or m['module_name']
+            tier_s = str(m['tier']) if m['tier'] else "-"
+            crew_s = str(m['crew']) if m['crew'] else "-"
+            pwr_s  = str(m['power']) if m['power'] else "-"
+            lines.append(
+                f"  {name:<35} {tier_s:>4} {crew_s:>5} {pwr_s:>5}  {status}"
             )
     lines.append("")
     return lines
@@ -331,6 +397,7 @@ def build_codex_report(savegame_db: Path) -> str:
             *_section_research(conn),
             "# SPACE STATE", "",
             *_section_habs(conn),
+            *_section_hab_modules(conn),
             *_section_fleets(conn),
             *_section_launch_windows(conn),
         ]

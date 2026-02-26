@@ -513,9 +513,11 @@ def cmd_stage(args):
         'hab_body_map':    _hab_body_map,
     }
     savegame_db = output_dir / f"savegame_{iso_date}.db"
-    templates_file = project_root / 'build' / 'templates' / 'TISpaceBodyTemplate.json'
+    templates_dir  = project_root / 'build' / 'templates'
+    templates_file = templates_dir / 'TISpaceBodyTemplate.json'
     populate_savegame_db(db_path, savegame_db, faction, iso_date, helpers,
-                         game_date=game_date, templates_file=templates_file)
+                         game_date=game_date, templates_file=templates_file,
+                         templates_dir=templates_dir)
 
     # Phase 3: Assemble
     assembled = assemble_contexts(resources_dir, output_dir, tier)

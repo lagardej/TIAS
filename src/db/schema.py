@@ -143,6 +143,23 @@ CREATE TABLE IF NOT EXISTS gs_habs (
 CREATE INDEX IF NOT EXISTS idx_habs_body ON gs_habs(parent_body_key);
 CREATE INDEX IF NOT EXISTS idx_habs_faction ON gs_habs(faction_key);
 
+CREATE TABLE IF NOT EXISTS gs_hab_modules (
+    module_key          INTEGER PRIMARY KEY,  -- TIHabModuleState key
+    hab_key             INTEGER NOT NULL,     -- FK -> gs_habs
+    module_name         TEXT NOT NULL,        -- TIHabModuleTemplate dataName
+    display_name        TEXT,                 -- localized display name
+    tier                INTEGER,              -- from TIHabModuleTemplate
+    crew                INTEGER,              -- from TIHabModuleTemplate (positive = requires crew)
+    power               INTEGER,              -- from TIHabModuleTemplate (negative = consuming, positive = generating)
+    construction_completed  INTEGER NOT NULL DEFAULT 1,  -- 0 if still building
+    completion_date     TEXT,                 -- ISO date: ETA if building, actual if complete
+    powered             INTEGER NOT NULL DEFAULT 1,
+    destroyed           INTEGER NOT NULL DEFAULT 0,
+    FOREIGN KEY (hab_key) REFERENCES gs_habs(hab_key)
+);
+CREATE INDEX IF NOT EXISTS idx_hab_modules_hab ON gs_hab_modules(hab_key);
+CREATE INDEX IF NOT EXISTS idx_hab_modules_name ON gs_hab_modules(module_name);
+
 CREATE TABLE IF NOT EXISTS gs_space_bodies (
     body_key            INTEGER PRIMARY KEY,
     name                TEXT NOT NULL,
